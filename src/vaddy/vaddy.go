@@ -85,8 +85,8 @@ func startScan(auth_key string, user string, fqdn string, crawl string) string {
 		values.Add("crawl_id", crawl)
 	}
 
-	apiServer := getApiServerName()
-	res, err := http.PostForm(apiServer+"/v1/scan", values)
+	api_server := getApiServerName()
+	res, err := http.PostForm(api_server + "/v1/scan", values)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(ERROR_EXIT)
@@ -105,8 +105,8 @@ func getScanResult(auth_key string, user string, fqdn string, scan_id string) []
 	values.Add("fqdn", fqdn)
 	values.Add("scan_id", scan_id)
 
-	apiServer := getApiServerName()
-	res, err := http.Get(apiServer + "/v1/scan/result?" + values.Encode())
+	api_server := getApiServerName()
+	res, err := http.Get(api_server + "/v1/scan/result?" + values.Encode())
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(ERROR_EXIT)
@@ -178,9 +178,9 @@ func convertJsonToStruct(jsonByteData []byte, structData interface{}) {
 }
 
 func getApiServerName() string {
-	apiserver, ok := os.LookupEnv("VADDY_API_SERVER")
+	api_server, ok := os.LookupEnv("VADDY_API_SERVER")
 	if ok {
-		return apiserver
+		return api_server
 	}
 	return API_SERVER
 }
