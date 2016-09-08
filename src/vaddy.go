@@ -142,7 +142,7 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string) 
 			fmt.Println("Warning!!!")
 			os.Exit(ERROR_EXIT)
 		} else {
-			fmt.Println("Scan Success!")
+			fmt.Println("Scan Success. No vulnerabilities!")
 			os.Exit(SUCCESS_EXIT)
 		}
 	}
