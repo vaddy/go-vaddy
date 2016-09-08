@@ -1,4 +1,4 @@
-package vaddy
+package main
 
 import (
 	"encoding/json"
