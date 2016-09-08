@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 )
-
+const VERSION string = "1.0.0"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
 const LIMIT_WAIT_COUNT int = 540 // 20sec * 540 = 3 hours
@@ -26,7 +26,7 @@ type ScanResult struct {
 }
 
 func main() {
-	fmt.Println("==== Start VAddy Scan ====")
+	fmt.Println("==== Start VAddy Scan (Version " + VERSION + ")====")
 
 	var auth_key, user, fqdn, crawl string = getApiParamsFromArgsOrEnv()
 
