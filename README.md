@@ -9,7 +9,7 @@ Go-vaddy can start scan and check the result.
 
 ## OS type
 
-You can use exe files on go-vaddy/bin directory.
+You can use exe files on `go-vaddy/bin` directory.
 If you use linux(64bit), use vaddy-linux-64bit.  
 
 For example, `./vaddy-linux-64bit  api_key userID FQDN`
