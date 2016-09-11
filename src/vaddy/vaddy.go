@@ -8,12 +8,23 @@ import (
 	"net/url"
 	"os"
 	"time"
+	"regexp"
+	"strconv"
 )
-const VERSION string = "1.0.0"
+const VERSION string = "1.0.1"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
 const LIMIT_WAIT_COUNT int = 540 // 20sec * 540 = 3 hours
 const API_SERVER string = "https://api.vaddy.net"
+
+type CrawlSearch struct {
+	Total int `json:"total"`
+	Items []CrawlSearchItem `json:"items"`
+}
+
+type CrawlSearchItem struct {
+	CrawlId int `json:"id"`
+}
 
 type StartScan struct {
 	ScanID string `json:"scan_id"`
@@ -29,6 +40,11 @@ func main() {
 	fmt.Println("==== Start VAddy Scan (Version " + VERSION + ")====")
 
 	var auth_key, user, fqdn, crawl string = getApiParamsFromArgsOrEnv()
+
+	if checkNeedToGetCrawlId(crawl) {
+		fmt.Println("Start to get crawl ID from keyword: " + crawl)
+		crawl = getCrawlId(auth_key, user, fqdn, crawl)
+	}
 
 	scan_id := startScan(auth_key, user, fqdn, crawl)
 
@@ -69,7 +85,7 @@ func getArgsFromEnv() (string, string, string, string) {
 
 	if !ok1 || !ok2 || !ok3 {
 		fmt.Println("Missing arguments or system env.")
-		fmt.Println("USAGE: vaddy ApiKey UserId FQDN CrawlID(optional)")
+		fmt.Println("USAGE: vaddy.go ApiKey UserId FQDN CrawlID/Label(optional)")
 		os.Exit(ERROR_EXIT)
 	}
 	return auth_key, user, fqdn, crawl
@@ -148,6 +164,41 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string) 
 	}
 }
 
+
+func getCrawlId(auth_key string, user string, fqdn string, search_label string) string {
+	json_response := doCrawlSearch(auth_key, user, fqdn, search_label)
+	//fmt.Println(string(json_response))
+
+	var crawl_result CrawlSearch
+	convertJsonToStruct(json_response, &crawl_result)
+	if crawl_result.Total == 0 {
+		fmt.Println("can not find crawl id. using latest crawl id.")
+		return ""
+	}
+	var crawl_id int = crawl_result.Items[0].CrawlId
+	fmt.Printf("Found %d results. Using CrawlID: %d \n\n", crawl_result.Total, crawl_id)
+	return strconv.Itoa(crawl_id)
+}
+
+func doCrawlSearch(auth_key string, user string, fqdn string, search_label string) []byte {
+	values := url.Values{}
+	values.Add("auth_key", auth_key)
+	values.Add("user", user)
+	values.Add("fqdn", fqdn)
+	values.Add("search_label", search_label)
+
+	api_server := getApiServerName()
+	res, err := http.Get(api_server + "/v1/crawl?" + values.Encode())
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(ERROR_EXIT)
+	}
+	defer res.Body.Close()
+
+	json_response := getResponseData(res)
+	return json_response
+}
+
 func getResponseData(resp *http.Response) []byte {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -184,3 +235,12 @@ func getApiServerName() string {
 	}
 	return API_SERVER
 }
+
+func checkNeedToGetCrawlId(str string) bool {
+	if len(str) == 0 || str == "" {
+		return false
+	}
+	var regex string = `[^0-9]`
+	return regexp.MustCompile(regex).Match([]byte(str))
+}
+
