@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"time"
 	"regexp"
 	"strconv"
+	"time"
 )
+
 const VERSION string = "1.0.1"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
@@ -18,7 +19,7 @@ const LIMIT_WAIT_COUNT int = 540 // 20sec * 540 = 3 hours
 const API_SERVER string = "https://api.vaddy.net"
 
 type CrawlSearch struct {
-	Total int `json:"total"`
+	Total int               `json:"total"`
 	Items []CrawlSearchItem `json:"items"`
 }
 
@@ -33,6 +34,7 @@ type StartScan struct {
 type ScanResult struct {
 	Status        string `json:"status"`
 	AlertCount    int    `json:"alert_count"`
+	ScanCount     int    `json:"scan_count"`
 	ScanResultUrl string `json:"scan_result_url"`
 }
 
@@ -102,7 +104,7 @@ func startScan(auth_key string, user string, fqdn string, crawl string) string {
 	}
 
 	api_server := getApiServerName()
-	res, err := http.PostForm(api_server + "/v1/scan", values)
+	res, err := http.PostForm(api_server+"/v1/scan", values)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(ERROR_EXIT)
@@ -157,13 +159,15 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string) 
 			fmt.Println(scan_result.AlertCount)
 			fmt.Println("Warning!!!")
 			os.Exit(ERROR_EXIT)
+		} else if scan_result.ScanCount == 0 {
+			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
+			os.Exit(ERROR_EXIT)
 		} else {
 			fmt.Println("Scan Success. No vulnerabilities!")
 			os.Exit(SUCCESS_EXIT)
 		}
 	}
 }
-
 
 func getCrawlId(auth_key string, user string, fqdn string, search_label string) string {
 	json_response := doCrawlSearch(auth_key, user, fqdn, search_label)
@@ -243,4 +247,3 @@ func checkNeedToGetCrawlId(str string) bool {
 	var regex string = `[^0-9]`
 	return regexp.MustCompile(regex).Match([]byte(str))
 }
-
