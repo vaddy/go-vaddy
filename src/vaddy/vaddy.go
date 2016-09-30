@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const VERSION string = "1.0.1"
+const VERSION string = "1.0.2"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
 const LIMIT_WAIT_COUNT int = 540 // 20sec * 540 = 3 hours
