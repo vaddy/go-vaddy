@@ -17,7 +17,7 @@ VAddyの脆弱性検査の実行と結果の取得を自動化するコマンド
 | OS            | file               | 
 | ------------- |:------------------:| 
 | Linux(64bit)  | vaddy-linux-64bit  |
-| MacOS(64bit)  | vaddy-macosx64     |
+| MacOS(64bit)  | vaddy-macosx-64bit |
 | Windows(64bit)| vaddy-win-64bit.exe|
 | Linux(32bit)  | vaddy-linux-32bit  |
 | Windows(32bit)| vaddy-win-32bit.exe|

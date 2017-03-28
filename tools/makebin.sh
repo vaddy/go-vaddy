@@ -2,7 +2,7 @@
 
 cd ../src/vaddy/
 
-go build  -o ../../bin/vaddy-macosx64
+go build  -o ../../bin/vaddy-macosx-64bit
 GOOS=linux GOARCH=386 go build  -o ../../bin/vaddy-linux-32bit
 GOOS=linux GOARCH=amd64 go build  -o ../../bin/vaddy-linux-64bit
 GOOS=windows GOARCH=386 go build  -o ../../bin/vaddy-win-32bit.exe
