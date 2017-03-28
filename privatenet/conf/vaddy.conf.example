@@ -1,0 +1,24 @@
+#!/bin/sh
+
+#VAddy WebAPI Key
+export VADDY_AUTH_KEY=""
+
+#Server FQDN 
+export VADDY_FQDN=""
+
+#Verification code of your FQDN
+# ex. verification file is vaddy-1234.html, verification code is 1234
+export VADDY_VERIFICATION_CODE=""
+
+#Login UserID
+export VADDY_USER=""
+
+#Your local Web Server IP address
+export VADDY_YOUR_LOCAL_IP="127.0.0.1"
+#Your local Web Server Port Number
+export VADDY_YOUR_LOCAL_PORT="8888"
+
+
+#Optional(CrawlId or Label)
+export VADDY_CRAWL=""
+
