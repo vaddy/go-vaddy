@@ -52,7 +52,7 @@ func main() {
 
 	var wait_count int = 0
 	for {
-		checkScanResult(auth_key, user, fqdn, scan_id)
+		checkScanResult(auth_key, user, fqdn, scan_id, wait_count)
 
 		time.Sleep(20 * time.Second) //wait 20 second
 		wait_count++
@@ -135,7 +135,7 @@ func getScanResult(auth_key string, user string, fqdn string, scan_id string) []
 	return json_response
 }
 
-func checkScanResult(auth_key string, user string, fqdn string, scan_id string) {
+func checkScanResult(auth_key string, user string, fqdn string, scan_id string, count int) {
 	json_response := getScanResult(auth_key, user, fqdn, scan_id)
 
 	var scan_result ScanResult
@@ -144,12 +144,17 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string) 
 	status := scan_result.Status
 	switch status {
 	case "scanning":
-		fmt.Println(scan_result.Status)
+		if count > 0 && (count%60 == 0) { //wrap every 60 dots.
+			fmt.Println(".")
+		} else {
+			fmt.Print(".")
+		}
 	case "canceled":
 		fmt.Println(scan_result.Status)
 		os.Exit(ERROR_EXIT)
 	case "finish":
 		//fmt.Println(string(json_response) + "\n")
+		fmt.Println(".")
 		fmt.Println("Server: " + fqdn)
 		fmt.Println("scanId: " + scan_id)
 		fmt.Println("Result URL: " + scan_result.ScanResultUrl)
