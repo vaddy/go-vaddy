@@ -15,7 +15,7 @@ import (
 const VERSION string = "1.0.2"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
-const LIMIT_WAIT_COUNT int = 540 // 20sec * 540 = 3 hours
+const LIMIT_WAIT_COUNT int = 600 // 20sec * 600 = 3.3 hours
 const API_SERVER string = "https://api.vaddy.net"
 
 type CrawlSearch struct {
@@ -51,10 +51,17 @@ func main() {
 	scan_id := startScan(auth_key, user, fqdn, crawl)
 
 	var wait_count int = 0
+	var sleep_sec int = 20
+
 	for {
 		checkScanResult(auth_key, user, fqdn, scan_id, wait_count)
 
-		time.Sleep(20 * time.Second) //wait 20 second
+		sleep_sec = 20
+		if wait_count < 10 {
+			sleep_sec = 3
+		}
+		time.Sleep(time.Duration(sleep_sec) * time.Second)
+
 		wait_count++
 		if wait_count > LIMIT_WAIT_COUNT {
 			fmt.Println("Error: time out")
