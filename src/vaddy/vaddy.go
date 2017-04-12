@@ -252,7 +252,12 @@ func convertJsonToStruct(jsonByteData []byte, structData interface{}) {
 func getApiServerName() string {
 	api_server, ok := os.LookupEnv("VADDY_API_SERVER")
 	if ok {
-		return api_server
+		//if api server does not contain protocol name, add https://
+		var regex string = `^https://.*$`
+		if regexp.MustCompile(regex).Match([]byte(api_server)) {
+			return api_server
+		}
+		return "https://" + api_server
 	}
 	return API_SERVER
 }
