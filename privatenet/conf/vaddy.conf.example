@@ -1,4 +1,8 @@
-#!/bin/sh
+#################################
+# VAddy sample config file
+#   copy vaddy.conf.sample to vaddy.conf
+#
+#################################
 
 #VAddy WebAPI Key
 export VADDY_AUTH_KEY=""
