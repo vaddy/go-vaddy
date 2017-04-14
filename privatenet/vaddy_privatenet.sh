@@ -56,9 +56,20 @@ get_os_type_bit() {
 	fi
 }
 
+show_config() {
+	echo -e '---------------- setting information -----------------'
+	echo -e "  FQDN: "$VADDY_FQDN
+	echo -e "  User: "$VADDY_USER
+	echo -e "  Local IP: "$VADDY_YOUR_LOCAL_IP
+	echo -e "  Local Port: "$VADDY_YOUR_LOCAL_PORT
+	echo -e '------------------------------------------------------'
+	echo -e "\n\n"
+}
+
+
 load_config
 get_os_type_bit
-
+show_config
 #####################################################################
 
 
@@ -73,7 +84,7 @@ VADDY_AGENT_OPTIONS="-u ${VADDY_USER} -h ${VADDY_FQDN} -w ${VADDY_YOUR_LOCAL_IP}
 
 
 usage_exit() {
-        echo -e "Usage: $0 action [-crawl crawl_id or crawl_label] \n  Action list: connect, disconnect, scan, check\n" 1>&2
+        echo -e "Usage: $0 action [-crawl crawl_id or crawl_label] \n  Action list: [ connect, disconnect, scan ]\n" 1>&2
 	echo -e "Example1(make connection): $0 connect" 1>&2
 	echo -e "Example2(start scan with crawlID 1234): $0 scan -crawl 1234" 1>&2
         exit 1
