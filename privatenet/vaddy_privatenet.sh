@@ -51,8 +51,8 @@ get_os_type_bit() {
 			OS_bit="64bit"
 		fi
 	else
-        	echo -e "Error: Sorry, this tool supports only Mac and Linux now. Please wait for next update." 1>&2
-        	exit 1
+		echo -e "Error: Sorry, this tool supports only Mac and Linux now. Please wait for next update." 1>&2
+		exit 1
 	fi
 }
 
@@ -84,10 +84,10 @@ VADDY_AGENT_OPTIONS="-u ${VADDY_USER} -h ${VADDY_FQDN} -w ${VADDY_YOUR_LOCAL_IP}
 
 
 usage_exit() {
-        echo -e "Usage: $0 action [-crawl crawl_id or crawl_label] \n  Action list: [ connect, disconnect, scan ]\n" 1>&2
+	echo -e "Usage: $0 action [-crawl crawl_id or crawl_label] \n  Action list: [ connect, disconnect, scan ]\n" 1>&2
 	echo -e "Example1(make connection): $0 connect" 1>&2
 	echo -e "Example2(start scan with crawlID 1234): $0 scan -crawl 1234" 1>&2
-        exit 1
+	exit 1
 }
 
 get_govaddy_binary_name() {
@@ -108,7 +108,7 @@ connect() {
 	echo -e "Connect Status: $CONNECT_EXIT"
 
 	if [ $CONNECT_EXIT -ne 0 ]; then
-        	echo -e "Error: Can not make connection for private net." 1>&2
+		echo -e "Error: Can not make connection for private net." 1>&2
 		exit 1;
 	fi
 }
@@ -169,7 +169,7 @@ case $1 in
 		set_crawl_label
 		start_scan
 		disconnect
-		
+
 		echo -e "Exit: ${GOVADDY_EXIT}"
 		exit $GOVADDY_EXIT
 		;;
