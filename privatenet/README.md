@@ -8,7 +8,7 @@ VAddy for Private Net command tool.
 You can check web application security for your local web server(local PC, VM and Intranet servers).
 
 
-![screen](./images/screen.png "screen")
+![screen](../images/screen.png "screen")
 
 
 ## System requirements 
