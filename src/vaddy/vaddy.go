@@ -15,7 +15,7 @@ import (
 const VERSION string = "1.0.2"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
-const LIMIT_WAIT_COUNT int = 540 // 20sec * 540 = 3 hours
+const LIMIT_WAIT_COUNT int = 600 // 20sec * 600 = 3.3 hours
 const API_SERVER string = "https://api.vaddy.net"
 
 type CrawlSearch struct {
@@ -41,20 +41,27 @@ type ScanResult struct {
 func main() {
 	fmt.Println("==== Start VAddy Scan (Version " + VERSION + ")====")
 
-	var auth_key, user, fqdn, crawl string = getApiParamsFromArgsOrEnv()
+	var auth_key, user, fqdn, crawl, verification_code string = getApiParamsFromArgsOrEnv()
 
 	if checkNeedToGetCrawlId(crawl) {
 		fmt.Println("Start to get crawl ID from keyword: " + crawl)
-		crawl = getCrawlId(auth_key, user, fqdn, crawl)
+		crawl = getCrawlId(auth_key, user, fqdn, crawl, verification_code)
 	}
 
-	scan_id := startScan(auth_key, user, fqdn, crawl)
+	scan_id := startScan(auth_key, user, fqdn, crawl, verification_code)
 
 	var wait_count int = 0
-	for {
-		checkScanResult(auth_key, user, fqdn, scan_id, wait_count)
+	var sleep_sec int = 20
 
-		time.Sleep(20 * time.Second) //wait 20 second
+	for {
+		checkScanResult(auth_key, user, fqdn, scan_id, wait_count, verification_code)
+
+		sleep_sec = 20
+		if wait_count < 10 {
+			sleep_sec = 3
+		}
+		time.Sleep(time.Duration(sleep_sec) * time.Second)
+
 		wait_count++
 		if wait_count > LIMIT_WAIT_COUNT {
 			fmt.Println("Error: time out")
@@ -63,10 +70,12 @@ func main() {
 	}
 }
 
-func getApiParamsFromArgsOrEnv() (string, string, string, string) {
-	var auth_key, user, fqdn, crawl string
+func getApiParamsFromArgsOrEnv() (string, string, string, string, string) {
+	var auth_key, user, fqdn, crawl, verification_code string
+	verification_code, _ = os.LookupEnv("VADDY_VERIFICATION_CODE")
+
 	if len(os.Args) < 4 {
-		return getArgsFromEnv()
+		return getArgsFromEnv(verification_code)
 	}
 
 	auth_key = os.Args[1]
@@ -75,10 +84,10 @@ func getApiParamsFromArgsOrEnv() (string, string, string, string) {
 	if len(os.Args) >= 5 {
 		crawl = os.Args[4]
 	}
-	return auth_key, user, fqdn, crawl
+	return auth_key, user, fqdn, crawl, verification_code
 }
 
-func getArgsFromEnv() (string, string, string, string) {
+func getArgsFromEnv(verification_code string) (string, string, string, string, string) {
 	var auth_key, user, fqdn, crawl string
 	auth_key, ok1 := os.LookupEnv("VADDY_TOKEN")
 	user, ok2 := os.LookupEnv("VADDY_USER")
@@ -90,15 +99,16 @@ func getArgsFromEnv() (string, string, string, string) {
 		fmt.Println("USAGE: vaddy.go ApiKey UserId FQDN CrawlID/Label(optional)")
 		os.Exit(ERROR_EXIT)
 	}
-	return auth_key, user, fqdn, crawl
+	return auth_key, user, fqdn, crawl, verification_code
 }
 
-func startScan(auth_key string, user string, fqdn string, crawl string) string {
+func startScan(auth_key string, user string, fqdn string, crawl string, verification_code string) string {
 	values := url.Values{}
 	values.Add("auth_key", auth_key)
 	values.Add("user", user)
 	values.Add("fqdn", fqdn)
 	values.Add("action", "start")
+	values.Add("verification_code", verification_code)
 	if len(crawl) > 0 {
 		values.Add("crawl_id", crawl)
 	}
@@ -116,12 +126,13 @@ func startScan(auth_key string, user string, fqdn string, crawl string) string {
 	return scanId
 }
 
-func getScanResult(auth_key string, user string, fqdn string, scan_id string) []byte {
+func getScanResult(auth_key string, user string, fqdn string, scan_id string, verification_code string) []byte {
 	values := url.Values{}
 	values.Add("auth_key", auth_key)
 	values.Add("user", user)
 	values.Add("fqdn", fqdn)
 	values.Add("scan_id", scan_id)
+	values.Add("verification_code", verification_code)
 
 	api_server := getApiServerName()
 	res, err := http.Get(api_server + "/v1/scan/result?" + values.Encode())
@@ -135,8 +146,8 @@ func getScanResult(auth_key string, user string, fqdn string, scan_id string) []
 	return json_response
 }
 
-func checkScanResult(auth_key string, user string, fqdn string, scan_id string, count int) {
-	json_response := getScanResult(auth_key, user, fqdn, scan_id)
+func checkScanResult(auth_key string, user string, fqdn string, scan_id string, count int, verification_code string) {
+	json_response := getScanResult(auth_key, user, fqdn, scan_id, verification_code)
 
 	var scan_result ScanResult
 	convertJsonToStruct(json_response, &scan_result)
@@ -174,8 +185,8 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 	}
 }
 
-func getCrawlId(auth_key string, user string, fqdn string, search_label string) string {
-	json_response := doCrawlSearch(auth_key, user, fqdn, search_label)
+func getCrawlId(auth_key string, user string, fqdn string, search_label string, verification_code string) string {
+	json_response := doCrawlSearch(auth_key, user, fqdn, search_label, verification_code)
 	//fmt.Println(string(json_response))
 
 	var crawl_result CrawlSearch
@@ -189,12 +200,13 @@ func getCrawlId(auth_key string, user string, fqdn string, search_label string) 
 	return strconv.Itoa(crawl_id)
 }
 
-func doCrawlSearch(auth_key string, user string, fqdn string, search_label string) []byte {
+func doCrawlSearch(auth_key string, user string, fqdn string, search_label string, verification_code string) []byte {
 	values := url.Values{}
 	values.Add("auth_key", auth_key)
 	values.Add("user", user)
 	values.Add("fqdn", fqdn)
 	values.Add("search_label", search_label)
+	values.Add("verification_code", verification_code)
 
 	api_server := getApiServerName()
 	res, err := http.Get(api_server + "/v1/crawl?" + values.Encode())
@@ -240,7 +252,12 @@ func convertJsonToStruct(jsonByteData []byte, structData interface{}) {
 func getApiServerName() string {
 	api_server, ok := os.LookupEnv("VADDY_API_SERVER")
 	if ok {
-		return api_server
+		//if api server does not contain protocol name, add https://
+		var regex string = `^https://.*$`
+		if regexp.MustCompile(regex).Match([]byte(api_server)) {
+			return api_server
+		}
+		return "https://" + api_server
 	}
 	return API_SERVER
 }
