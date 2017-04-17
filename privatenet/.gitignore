@@ -1,0 +1,5 @@
+vaddy/
+conf/vaddy.conf
+conf/before_scan_hook.sh
+conf/after_scan_hook.sh
+
