@@ -11,23 +11,29 @@ VAddy for Private Net コマンド
 ![screen](../images/screen.png "screen")
 
 
+
 ## 動作環境
 
 このツールでは、javaとssh, ssh-keygen, psコマンドを利用します。  
 そのため、現在ではMacとLinuxのみサポートとしています。
 
 
-## コマンドの終了ステータス
 
-エラーや脆弱性が発見されなかった場合は終了コード 0を返します。これは一般的なコマンドの正常終了と同じ終了コードです。
-エラーや脆弱性があった場合は、終了コード1を返します。
+## ダウンロード
+
+[https://github.com/vaddy/go-vaddy/releases](https://github.com/vaddy/go-vaddy/releases)
+からzipファイルをダウンロードするか、
+git cloneしてご利用ください。 
+
+    git clone https://github.com/vaddy/go-vaddy.git
 
 ## 設定方法
 
 VAddyのWeb画面からWebAPIキーを発行してください。  
 [https://console.vaddy.net/user/webapi](https://console.vaddy.net/user/webapi)  
 
-次に、`conf/vaddy.conf.example` ファイルを`conf/vaddyconf`にコピーして、設定情報を書き込みます。
+次に、`privatenet/conf/vaddy.conf.example` ファイルを`privatenet/conf/vaddy.conf`にコピーして、設定情報を書き込みます。
+
 
 
 ## 動作説明
@@ -36,6 +42,10 @@ VAddyのWeb画面からWebAPIキーを発行してください。
 ローカルのWebサーバのポートが、sshトンネルによりVAddyのサーバ側に公開されますので、VAddyはそこを通して検査します。  
 ローカルのWebサーバのポートが外部に公開される形ですが、その公開されたポートへはVAddyサーバのみアクセスできるように制限されていますのでご安心ください。
 
+## コマンドの終了ステータス
+
+エラーや脆弱性が発見されなかった場合は終了コード 0を返します。これは一般的なコマンドの正常終了と同じ終了コードです。
+エラーや脆弱性があった場合は、終了コード1を返します。
 
 
 ## 使い方 
