@@ -2,7 +2,7 @@
 
 echo '
 ################################################################
-# VAddy Private Net Tools (Version: 0.0.1)
+# VAddy Private Net Tools (Version: 1.0.3)
 # This software is released under the MIT License,
 #
 # This tool needs Mac or Linux, Java, ssh command
