@@ -16,15 +16,21 @@ You can check web application security for your local web server(local PC, VM an
 This tool needs Java, shell and Mac/Linux, and uses ssh, ssh-keygen, ps commands.
 
 
-## Exit status
-This tool returns 0 (no errors, no vulnerabilities) or 1 (errors, 1 or more vulnerabilities).
+
+## Download
+
+Download zip from [https://github.com/vaddy/go-vaddy/releases](https://github.com/vaddy/go-vaddy/releases),  
+or git clone.
+
+    git clone https://github.com/vaddy/go-vaddy.git
+
 
 
 ## Set up
 
 Get your VAddy WebAPI key on [https://console.vaddy.net/user/webapi](https://console.vaddy.net/user/webapi)  
 
-Create `conf/vaddyconf` file from `conf/vaddy.conf.example` and edit it.  
+Create `privatenet/conf/vaddy.conf` file from `privatenet/conf/vaddy.conf.example` and edit it.  
 
 
 ## How to work
@@ -32,6 +38,10 @@ Create `conf/vaddyconf` file from `conf/vaddy.conf.example` and edit it.
 This tool creates ssh tunnel(remort port forwarding) to open your local web server port to us.  
 VAddy can access your local web server through ssh tunnel.  
 Don't worry, your local server opens for only VAddy.  
+
+
+## Exit status
+This tool returns 0 (no errors, no vulnerabilities) or 1 (errors, 1 or more vulnerabilities).
 
 
 ## Usage 
