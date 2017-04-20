@@ -1,0 +1,23 @@
+#######################################
+#
+# Sample of after scan hook
+# echo green or red character.
+#
+#######################################
+
+echo -e "start after scan hook"
+
+
+if [ ${GOVADDY_EXIT} -eq 0 ]; then
+	echo -e "\033[32m" #green
+	echo -e "++++++++++++++ Sucess!! ++++++++++++++++\n"
+	echo -e "\033["
+else
+	echo -e "\033[31m" #red
+	echo -e "-------------- Warning!! ---------------\n"
+	echo -e `grep 'Vulnerabili' ./vaddy/scan_result.txt`
+	echo -e "\033["
+fi	
+#turn off color
+echo -e "\033[m" 
+
