@@ -1,5 +1,5 @@
 
-VAddy for Private Net command tool
+VAddy for Private Net CLI tool
 ======================================
 
 VAddy for Private Net コマンド  
@@ -11,11 +11,24 @@ VAddy for Private Net コマンド
 ![screen](../images/screen.png "screen")
 
 
+## 動作説明
+
+このツールは、sshのリモートポートフォワードを使ったsshトンネルを作ります。
+ローカルのWebサーバのポートが、sshトンネルによりVAddyのサーバ側に公開されますので、VAddyはそこを通して検査します。  
+ローカルのWebサーバのポートが外部に公開される形ですが、その公開されたポートへはVAddyサーバのみアクセスできるように制限されていますのでご安心ください。  
+
+![screen](../images/privatenet.png "privatenet")
+
+この図の例では、あなた専用に割り当てたVAddy sshdのリモートポート 3210と、ローカルポート443をVAddy CLI Toolを使って結びます。VAddyの検査リクエストは、このポート3210を通して行います。  
+3210のようなリモートポート番号は、ユーザのFQDN毎に自動的に割り当てられ、VAddy CLI Toolが自動的にsshトンネルを作成するようにできています。
+
 
 ## 動作環境
 
 このツールでは、javaとssh, ssh-keygen, psコマンドを利用します。  
-そのため、現在ではMacとLinuxのみサポートとしています。
+そのため、現在ではMacとLinuxのみサポートとしています。  
+本ツールを動かすマシンから外部サーバ(pfd.vaddy.net)へ、SSHアクセスできる環境が必要です（アウトバウンド通信）。
+
 
 
 
@@ -33,14 +46,24 @@ VAddyのWeb画面からWebAPIキーを発行してください。
 [https://console.vaddy.net/user/webapi](https://console.vaddy.net/user/webapi)  
 
 次に、`privatenet/conf/vaddy.conf.example` ファイルを`privatenet/conf/vaddy.conf`にコピーして、設定情報を書き込みます。
+このvaddy.confでは、検査に必要な値を環境変数にセットしています。OS側やCircleCI, TravisCIなどのようなCI側でセットした環境変数は、このconfファイルでセットする必要はありませんので、不要な行はコメントアウトしてください。
 
 
+### vaddy.conf
 
-## 動作説明
+| 環境変数                　|  説明                                                     | 
+| ------------------------|:--------------------------------------------------------| 
+| VADDY_AUTH_KEY       　　 | VAddyの画面で発行したWebAPIキー                             |
+| VADDY_FQDN       　　　   | VAddyで登録したサーバ名(FQDN) 例: www.example.com          |
+| VADDY_VERIFICATION_CODE  | VAddyでサーバ登録した際に発行されるVerification Code。       |
+| VADDY_USER               | VAddyにログインする際に利用するユーザ名                       |
+| VADDY_YOUR_LOCAL_IP      | 検査対象のIP。 localhostや、イントラネットのサーバのIP (例：172.16.1.10) |
+| VADDY_YOUR_LOCAL_PORT    | 検査対象のポート。 80, 443など。                            |
+| VADDY_CRAWL              | オプション項目。クロールIDやクロールラベルの文字を指定すると、そのクロールが利用される |
 
-このツールは、sshのリモートポートフォワードを使ったsshトンネルを作ります。
-ローカルのWebサーバのポートが、sshトンネルによりVAddyのサーバ側に公開されますので、VAddyはそこを通して検査します。  
-ローカルのWebサーバのポートが外部に公開される形ですが、その公開されたポートへはVAddyサーバのみアクセスできるように制限されていますのでご安心ください。
+VADDY_YOUR_LOCAL_PORTは1つのポートしか指定できません。  
+したがって、検査対象のアプリケーションはHTTPもしくはHTTPSのどちらかになります。`VADDY_YOUR_LOCAL_PORT`で指定するポート番号で、HTTPかHTTPSかを決められます。
+
 
 ## コマンドの終了ステータス
 
