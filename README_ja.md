@@ -50,6 +50,11 @@ Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環�
     export VADDY_CRAWL="search result pages"  
 
 
+環境変数をセットした後は、下記のようにコマンドを実行します。
+
+    vaddy-linux-64bit
+
+
 ### コマンド引数
 最後のオプション`crawl_id`は必須ではありません。これを指定しない場合は最新のクロールIDのデータを使って脆弱性検査します。
 
