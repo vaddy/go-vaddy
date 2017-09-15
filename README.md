@@ -1,8 +1,8 @@
 
-go-vaddy: VAddy API command tool
+go-vaddy: VAddy API Command-Line Tool
 =================================
 
-VAddy API command tool using golang  
+VAddy API Command-Line Tool using golang  
 http://vaddy.net
 
 Go-vaddy can start scan and check the result.
