@@ -50,7 +50,7 @@ Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環�
     export VADDY_CRAWL="search result pages"  
 
 
-###コマンド引数
+### コマンド引数
 最後のオプション`crawl_id`は必須ではありません。これを指定しない場合は最新のクロールIDのデータを使って脆弱性検査します。
 
 Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_id(optional)`
@@ -59,7 +59,7 @@ Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_id(optional
 
 
 
-####コマンド引数（クロールラベル指定）
+#### コマンド引数（クロールラベル指定）
 Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_label_keyword`
 
     vaddy-linux-64bit 123455667789  ichikaway  www.examplevaddy.net useredit
