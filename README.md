@@ -19,8 +19,10 @@ For example, `./vaddy-linux-64bit  api_key userID FQDN`
 | Linux(64bit)  | vaddy-linux-64bit  |
 | MacOS(64bit)  | vaddy-macosx-64bit |
 | Windows(64bit)| vaddy-win-64bit.exe|
+| FreeBSD(64bit)| vaddy-freebsd-64bit|
 | Linux(32bit)  | vaddy-linux-32bit  |
 | Windows(32bit)| vaddy-win-32bit.exe|
+| FreeBSD(32bit)| vaddy-freebsd-32bit|
 
 
 
