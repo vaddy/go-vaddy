@@ -174,6 +174,42 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 			fmt.Print("Vulnerabilities: ")
 			fmt.Println(scan_result.AlertCount)
 			fmt.Println("Warning!!!")
+
+			var slackIncomingURL, slackUsername, slackChannel string
+			slackIncomingURL, ok1 := os.LookupEnv("SLACK_INCOMING_URL")
+			slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
+			slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
+
+			if ok1 && ok2 && ok3 {
+				type Slack struct {
+					Username  string `json:"username"`
+					IconEmoji string `json:"icon_emoji"`
+					IconURL   string `json:"icon_url"`
+					Channel   string `json:"channel"`
+					Text      string `json:"text"`
+				}
+
+				var text string
+				text = "VAddy Scan Vulnerabilities: " + string(scan_result.AlertCount) + " Warning!!!\n"
+				text += "Server: " + fqdn + "\n"
+				text += "scanId: " + scan_id + "\n"
+				text += "Result URL: " + scan_result.ScanResultUrl
+				params, _ := json.Marshal(Slack{
+					slackUsername,
+					"",
+					"",
+					slackChannel,
+					text})
+				resp, err := http.PostForm(
+					slackIncomingURL,
+					url.Values{"payload": {string(params)}},
+				)
+				if err != nil {
+					os.Exit(ERROR_EXIT)
+				}
+				defer resp.Body.Close()
+			}
+
 			os.Exit(ERROR_EXIT)
 		} else if scan_result.ScanCount == 0 {
 			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
