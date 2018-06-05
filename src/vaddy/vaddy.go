@@ -174,42 +174,7 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 			fmt.Print("Vulnerabilities: ")
 			fmt.Println(scan_result.AlertCount)
 			fmt.Println("Warning!!!")
-
-			var slackIncomingURL, slackUsername, slackChannel string
-			slackIncomingURL, ok1 := os.LookupEnv("SLACK_INCOMING_URL")
-			slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
-			slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
-
-			if ok1 && ok2 && ok3 {
-				type Slack struct {
-					Username  string `json:"username"`
-					IconEmoji string `json:"icon_emoji"`
-					IconURL   string `json:"icon_url"`
-					Channel   string `json:"channel"`
-					Text      string `json:"text"`
-				}
-
-				var text string
-				text = "VAddy Scan Vulnerabilities: " + string(scan_result.AlertCount) + " Warning!!!\n"
-				text += "Server: " + fqdn + "\n"
-				text += "scanId: " + scan_id + "\n"
-				text += "Result URL: " + scan_result.ScanResultUrl
-				params, _ := json.Marshal(Slack{
-					slackUsername,
-					"",
-					"",
-					slackChannel,
-					text})
-				resp, err := http.PostForm(
-					slackIncomingURL,
-					url.Values{"payload": {string(params)}},
-				)
-				if err != nil {
-					os.Exit(ERROR_EXIT)
-				}
-				defer resp.Body.Close()
-			}
-
+			postSlackWarning(scan_result.AlertCount, fqdn, scan_id, scan_result.ScanResultUrl)
 			os.Exit(ERROR_EXIT)
 		} else if scan_result.ScanCount == 0 {
 			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
@@ -304,4 +269,63 @@ func checkNeedToGetCrawlId(str string) bool {
 	}
 	var regex string = `[^0-9]`
 	return regexp.MustCompile(regex).Match([]byte(str))
+}
+
+func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
+	var slackIncomingURL, slackUsername, slackChannel string
+	slackIncomingURL, ok1 := os.LookupEnv("SLACK_INCOMING_URL")
+	slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
+	slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
+
+	if ok1 && ok2 && ok3 {
+		var title, text, iconEmoji string
+		title = "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
+		text = "Server: " + fqdn + "\n"
+		text += "scanId: " + scanID + "\n"
+		text += "Result URL: " + scanResultURL
+		iconEmoji, ok4 := os.LookupEnv("SLACK_ICON_EMOJI")
+		if !ok4 {
+			iconEmoji = ""
+		}
+
+		type attachments struct {
+			Color string `json:"color"`
+			Title string `json:"title"`
+			Text  string `json:"text"`
+		}
+
+		type slack struct {
+			Username     string        `json:"username"`
+			IconEmoji    string        `json:"icon_emoji"`
+			IconURL      string        `json:"icon_url"`
+			Channel      string        `json:"channel"`
+			Text         string        `json:"text"`
+			Attachements []attachments `json:"attachments"`
+		}
+
+		incomingWebhooks := slack{
+			Username:  slackUsername,
+			IconEmoji: iconEmoji,
+			IconURL:   "",
+			Channel:   slackChannel,
+			Text:      "VAddy Scan (Version " + VERSION + ")",
+			Attachements: []attachments{
+				{
+					Color: "danger",
+					Title: title,
+					Text:  text,
+				},
+			},
+		}
+
+		params, _ := json.Marshal(incomingWebhooks)
+		resp, err := http.PostForm(
+			slackIncomingURL,
+			url.Values{"payload": {string(params)}},
+		)
+		if err != nil {
+			os.Exit(ERROR_EXIT)
+		}
+		defer resp.Body.Close()
+	}
 }
