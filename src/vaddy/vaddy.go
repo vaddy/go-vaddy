@@ -272,16 +272,17 @@ func checkNeedToGetCrawlId(str string) bool {
 }
 
 func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
-	var slackWebhookURL, slackUsername, slackChannel string
 	slackWebhookURL, ok1 := os.LookupEnv("SLACK_WEBHOOK_URL")
-	slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
-	slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
 
-	if ok1 && ok2 && ok3 {
-		title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
-		text := "Server: " + fqdn + "\n"
-		text += "Scan ID: " + scanID + "\n"
-		text += "Result URL: " + scanResultURL
+	if ok1 {
+		slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
+		if !ok2 {
+			slackUsername = ""
+		}
+		slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
+		if !ok3 {
+			slackChannel = ""
+		}
 		iconEmoji, ok4 := os.LookupEnv("SLACK_ICON_EMOJI")
 		if !ok4 {
 			iconEmoji = ""
@@ -290,6 +291,10 @@ func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL 
 		if !ok5 {
 			iconURL = ""
 		}
+		title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
+		text := "Server: " + fqdn + "\n"
+		text += "Scan ID: " + scanID + "\n"
+		text += "Result URL: " + scanResultURL
 
 		type attachments struct {
 			Color string `json:"color"`
