@@ -62,6 +62,7 @@ You can also set paramters using OS environment variables.
     export VADDY_HOST="www.examplevaddy.com"  
     export VADDY_CRAWL="30"  
 
+
 `VADDY_CRAWL` is optional. If you don't specify it, VAddy uses the latest crawl data.  
 You can specify crawl label keyword on `VADDY_CRAWL` like this  
 
