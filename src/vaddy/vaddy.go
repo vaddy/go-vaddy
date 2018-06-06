@@ -272,20 +272,23 @@ func checkNeedToGetCrawlId(str string) bool {
 }
 
 func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
-	var slackIncomingURL, slackUsername, slackChannel string
-	slackIncomingURL, ok1 := os.LookupEnv("SLACK_INCOMING_URL")
+	var slackWebhookURL, slackUsername, slackChannel string
+	slackWebhookURL, ok1 := os.LookupEnv("SLACK_WEBHOOK_URL")
 	slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
 	slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
 
 	if ok1 && ok2 && ok3 {
-		var title, text, iconEmoji string
-		title = "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
-		text = "Server: " + fqdn + "\n"
-		text += "scanId: " + scanID + "\n"
+		title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
+		text := "Server: " + fqdn + "\n"
+		text += "Scan ID: " + scanID + "\n"
 		text += "Result URL: " + scanResultURL
 		iconEmoji, ok4 := os.LookupEnv("SLACK_ICON_EMOJI")
 		if !ok4 {
 			iconEmoji = ""
+		}
+		iconURL, ok5 := os.LookupEnv("SLACK_ICON_URL")
+		if !ok5 {
+			iconURL = ""
 		}
 
 		type attachments struct {
@@ -303,29 +306,28 @@ func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL 
 			Attachements []attachments `json:"attachments"`
 		}
 
-		incomingWebhooks := slack{
+		webhooks := slack{
 			Username:  slackUsername,
 			IconEmoji: iconEmoji,
-			IconURL:   "",
+			IconURL:   iconURL,
 			Channel:   slackChannel,
 			Text:      "VAddy Scan (Version " + VERSION + ")",
 			Attachements: []attachments{
 				{
-					Color: "danger",
+					Color: "warning",
 					Title: title,
 					Text:  text,
 				},
 			},
 		}
 
-		params, _ := json.Marshal(incomingWebhooks)
+		params, _ := json.Marshal(webhooks)
 		resp, err := http.PostForm(
-			slackIncomingURL,
+			slackWebhookURL,
 			url.Values{"payload": {string(params)}},
 		)
-		if err != nil {
-			os.Exit(ERROR_EXIT)
+		if err == nil {
+			defer resp.Body.Close()
 		}
-		defer resp.Body.Close()
 	}
 }
