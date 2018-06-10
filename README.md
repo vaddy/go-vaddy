@@ -67,3 +67,11 @@ You can also set paramters using OS environment variables.
 You can specify crawl label keyword on `VADDY_CRAWL` like this  
 
     export VADDY_CRAWL="search result pages"  
+
+if you want post message to slack, set OS environment variables.
+
+    export SLACK_WEBHOOK_URL="webhook url"
+    export SLACK_USERNAME="your user"
+    export SLACK_CHANNEL="your channel"
+    export SLACK_ICON_EMOJI=":smile: optional defaults to slack defined"
+    export SLACK_ICON_URL=""

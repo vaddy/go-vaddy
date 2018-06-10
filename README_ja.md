@@ -57,6 +57,14 @@ Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環�
     vaddy-linux-64bit
 
 
+Slackのwebhooksを利用した実行
+
+    export SLACK_WEBHOOK_URL="webhook url"
+    export SLACK_USERNAME="your user (optional)"
+    export SLACK_CHANNEL="your channel (optional)"
+    export SLACK_ICON_EMOJI=":smile: (optional)"
+    export SLACK_ICON_URL="icon url (optional)"
+
 ### コマンド引数
 最後のオプション`crawl_id`は必須ではありません。これを指定しない場合は最新のクロールIDのデータを使って脆弱性検査します。
 
