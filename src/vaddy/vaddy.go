@@ -174,6 +174,7 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 			fmt.Print("Vulnerabilities: ")
 			fmt.Println(scan_result.AlertCount)
 			fmt.Println("Warning!!!")
+			postSlackWarning(scan_result.AlertCount, fqdn, scan_id, scan_result.ScanResultUrl)
 			os.Exit(ERROR_EXIT)
 		} else if scan_result.ScanCount == 0 {
 			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
@@ -268,4 +269,70 @@ func checkNeedToGetCrawlId(str string) bool {
 	}
 	var regex string = `[^0-9]`
 	return regexp.MustCompile(regex).Match([]byte(str))
+}
+
+func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
+	slackWebhookURL, ok1 := os.LookupEnv("SLACK_WEBHOOK_URL")
+
+	if ok1 {
+		slackUsername, ok2 := os.LookupEnv("SLACK_USERNAME")
+		if !ok2 {
+			slackUsername = ""
+		}
+		slackChannel, ok3 := os.LookupEnv("SLACK_CHANNEL")
+		if !ok3 {
+			slackChannel = ""
+		}
+		iconEmoji, ok4 := os.LookupEnv("SLACK_ICON_EMOJI")
+		if !ok4 {
+			iconEmoji = ""
+		}
+		iconURL, ok5 := os.LookupEnv("SLACK_ICON_URL")
+		if !ok5 {
+			iconURL = ""
+		}
+		title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
+		text := "Server: " + fqdn + "\n"
+		text += "Scan ID: " + scanID + "\n"
+		text += "Result URL: " + scanResultURL
+
+		type attachments struct {
+			Color string `json:"color"`
+			Title string `json:"title"`
+			Text  string `json:"text"`
+		}
+
+		type slack struct {
+			Username     string        `json:"username"`
+			IconEmoji    string        `json:"icon_emoji"`
+			IconURL      string        `json:"icon_url"`
+			Channel      string        `json:"channel"`
+			Text         string        `json:"text"`
+			Attachements []attachments `json:"attachments"`
+		}
+
+		webhooks := slack{
+			Username:  slackUsername,
+			IconEmoji: iconEmoji,
+			IconURL:   iconURL,
+			Channel:   slackChannel,
+			Text:      "VAddy Scan (Version " + VERSION + ")",
+			Attachements: []attachments{
+				{
+					Color: "warning",
+					Title: title,
+					Text:  text,
+				},
+			},
+		}
+
+		params, _ := json.Marshal(webhooks)
+		resp, err := http.PostForm(
+			slackWebhookURL,
+			url.Values{"payload": {string(params)}},
+		)
+		if err == nil {
+			defer resp.Body.Close()
+		}
+	}
 }
