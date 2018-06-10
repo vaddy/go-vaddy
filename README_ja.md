@@ -14,8 +14,8 @@ VAddyの脆弱性検査の実行と結果の取得を自動化するコマンド
 
 例： `./vaddy-linux-64bit  api_key userID FQDN`
 
-| OS            | file               | 
-| ------------- |:------------------:| 
+| OS            | file               |
+| ------------- |:------------------:|
 | Linux(64bit)  | vaddy-linux-64bit  |
 | MacOS(64bit)  | vaddy-macosx-64bit |
 | Windows(64bit)| vaddy-win-64bit.exe|
@@ -36,7 +36,7 @@ Go-vaddyは、エラーや脆弱性が発見されなかった場合は終了コ
 Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環境変数にセットするパターンが選べます。
 
 
-### 環境変数 
+### 環境変数
 環境変数を利用した実行
 
 
@@ -57,7 +57,8 @@ Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環�
     vaddy-linux-64bit
 
 
-Slackのwebhooksを利用した実行
+#### Slack連携
+この環境変数をセットすると脆弱性を発見した際にSlackにメッセージ通知できます。
 
     export SLACK_WEBHOOK_URL="webhook url"
     export SLACK_USERNAME="your user (optional)"
@@ -81,5 +82,3 @@ Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_label_keywo
 
 あなたが付けたクロールラベルの文言を指定した例です。例えば、クロールラベルにuseredit1, useredit2のように付けていた場合は、検索でヒットした中の最新のクロールIDを指定して検査します。
 検索で指定のラベルのものが見つからない場合は、`crawl_id`を指定しない検査となります（最新のcrawl idが利用されます）。
-
-

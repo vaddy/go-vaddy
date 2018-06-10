@@ -14,8 +14,8 @@ If you use linux(64bit), use vaddy-linux-64bit.
 
 For example, `./vaddy-linux-64bit  api_key userID FQDN`
 
-| OS            | file               | 
-| ------------- |:------------------:| 
+| OS            | file               |
+| ------------- |:------------------:|
 | Linux(64bit)  | vaddy-linux-64bit  |
 | MacOS(64bit)  | vaddy-macosx-64bit |
 | Windows(64bit)| vaddy-win-64bit.exe|
@@ -68,10 +68,13 @@ You can specify crawl label keyword on `VADDY_CRAWL` like this
 
     export VADDY_CRAWL="search result pages"  
 
-if you want post message to slack, set OS environment variables.
+
+#### Slack Integration
+Setting these OS environment variables,
+Post message to the slack when VAddy found vulnerabilities.  
 
     export SLACK_WEBHOOK_URL="webhook url"
-    export SLACK_USERNAME="your user"
-    export SLACK_CHANNEL="your channel"
-    export SLACK_ICON_EMOJI=":smile: optional defaults to slack defined"
-    export SLACK_ICON_URL=""
+    export SLACK_USERNAME="your user (optional)"
+    export SLACK_CHANNEL="your channel (optional)"
+    export SLACK_ICON_EMOJI=":smile: (optional)"
+    export SLACK_ICON_URL="icon url (optional)"
