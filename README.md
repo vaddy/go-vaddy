@@ -32,7 +32,7 @@ For example, `./vaddy-linux-64bit  api_key userID FQDN`
 Go-vaddy returns 0 (no errors, no vulnerabilities) or 1 (errors, 1 or more vulnerabilities).
 
 
-###Arguments
+###Arguments(V1 API)
 
 Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_id(optional)`
 
@@ -54,14 +54,22 @@ If it can not get Crawl ID, vaddy uses latest Crawl ID.
 
 
 
-### ENV
-You can also set paramters using OS environment variables.  
+### ENV(V1, V2 API)
+You can also set paramters using OS environment variables.
+
+for V1 API
 
     export VADDY_TOKEN="123455667789"  
     export VADDY_USER="ichikaway"  
     export VADDY_HOST="www.examplevaddy.com"  
-    export VADDY_CRAWL="30"  
+    export VADDY_CRAWL="30"
 
+for V2 API
+
+    export VADDY_TOKEN="123455667789"
+    export VADDY_USER="ichikaway"
+    export VADDY_PROJECT_ID="your project id"
+    export VADDY_CRAWL="30"
 
 `VADDY_CRAWL` is optional. If you don't specify it, VAddy uses the latest crawl data.  
 You can specify crawl label keyword on `VADDY_CRAWL` like this  
