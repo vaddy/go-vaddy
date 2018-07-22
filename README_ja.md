@@ -32,19 +32,26 @@ VAddyの脆弱性検査の実行と結果の取得を自動化するコマンド
 Go-vaddyは、エラーや脆弱性が発見されなかった場合は終了コード 0を返します。これは一般的なコマンドの正常終了と同じ終了コードです。
 エラーや脆弱性があった場合は、終了コード1を返します。
 
-### 引数タイプ
+### 引数タイプ（V1 API）
 Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環境変数にセットするパターンが選べます。
 
 
-### 環境変数
+### 環境変数（V1, V2 API）
 環境変数を利用した実行
 
+V1 APIを利用する場合
 
     export VADDY_TOKEN="123455667789"  
     export VADDY_USER="ichikaway"  
     export VADDY_HOST="www.examplevaddy.com"  
     export VADDY_CRAWL="30"  
 
+V2 APIを利用する場合
+
+    export VADDY_TOKEN="123455667789"
+    export VADDY_USER="ichikaway"
+    export VADDY_PROJECT_ID="your project id"
+    export VADDY_CRAWL="30"
 
 `VADDY_CRAWL`はオプション項目で、指定しない場合は最新のクロールデータを使って検査します。  
 下記の例のようにクロールラベルの指定も可能です。
