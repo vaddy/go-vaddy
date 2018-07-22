@@ -3,7 +3,7 @@ go-vaddy: VAddy API Command-Line Tool
 =================================
 
 VAddy API Command-Line Tool using golang  
-http://vaddy.net
+https://vaddy.net
 
 Go-vaddy can start scan and check the result.
 
@@ -32,44 +32,24 @@ For example, `./vaddy-linux-64bit  api_key userID FQDN`
 Go-vaddy returns 0 (no errors, no vulnerabilities) or 1 (errors, 1 or more vulnerabilities).
 
 
-###Arguments(V1 API)
-
-Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_id(optional)`
-
-    ./vaddy-linux-64bit 123455667789  ichikaway  www.examplevaddy.net 30
-
-CrawlID is optional. If you don't specify it, VAddy uses the latest crawl data.
 
 
-###Argument with the crawl label keyword
-
-Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_label_keyword`
-
-    vaddy-linux-64bit 123455667789  ichikaway  www.examplevaddy.net useredit
-
-This example set "useredit" keyword on crawl label parameter.  
-At first, go-vaddy search by "useredit" keyword and get the Crawl ID .  
-Then go-vaddy sets the Crawl ID to start scan.
-If it can not get Crawl ID, vaddy uses latest Crawl ID.
-
-
-
-### ENV(V1, V2 API)
+### ENV
 You can also set paramters using OS environment variables.
 
-for V1 API
+#### for V1 Project
 
     export VADDY_TOKEN="123455667789"  
     export VADDY_USER="ichikaway"  
     export VADDY_HOST="www.examplevaddy.com"  
-    export VADDY_CRAWL="30"
+    #export VADDY_CRAWL="30"
 
-for V2 API
+#### for V2 Project
 
     export VADDY_TOKEN="123455667789"
     export VADDY_USER="ichikaway"
     export VADDY_PROJECT_ID="your project id"
-    export VADDY_CRAWL="30"
+    #export VADDY_CRAWL="30"
 
 `VADDY_CRAWL` is optional. If you don't specify it, VAddy uses the latest crawl data.  
 You can specify crawl label keyword on `VADDY_CRAWL` like this  
@@ -77,7 +57,7 @@ You can specify crawl label keyword on `VADDY_CRAWL` like this
     export VADDY_CRAWL="search result pages"  
 
 
-#### Slack Integration
+### Slack Integration
 Setting these OS environment variables,
 Post message to the slack when VAddy found vulnerabilities.  
 
