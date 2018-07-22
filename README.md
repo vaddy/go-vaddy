@@ -35,7 +35,7 @@ Go-vaddy returns 0 (no errors, no vulnerabilities) or 1 (errors, 1 or more vulne
 
 
 ### ENV
-You can also set paramters using OS environment variables.
+You can check V1/V2 project on the dashboard screen after login.
 
 #### for V1 Project
 
@@ -55,6 +55,11 @@ You can also set paramters using OS environment variables.
 You can specify crawl label keyword on `VADDY_CRAWL` like this  
 
     export VADDY_CRAWL="search result pages"  
+
+### Command Execution
+
+    cd bin
+    ./vaddy-linux-64bit
 
 
 ### Slack Integration
