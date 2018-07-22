@@ -3,7 +3,7 @@ go-vaddy: VAddy API Command-Line Tool
 =================================
 
 VAddy API Command-Line Tool using golang  
-http://vaddy.net
+https://vaddy.net
 
 VAddyの脆弱性検査の実行と結果の取得を自動化するコマンドツールです。
 
@@ -32,38 +32,40 @@ VAddyの脆弱性検査の実行と結果の取得を自動化するコマンド
 Go-vaddyは、エラーや脆弱性が発見されなかった場合は終了コード 0を返します。これは一般的なコマンドの正常終了と同じ終了コードです。
 エラーや脆弱性があった場合は、終了コード1を返します。
 
-### 引数タイプ（V1 API）
-Go-vaddyでは、コマンドの引数を指定するパターンと、OSの環境変数にセットするパターンが選べます。
+
+### 環境変数
+
+検査対象のサーバをVAddyに登録した時期によってご利用のVAddyのプロジェクトのバージョン(V1/V2)が異なります。  
+ご利用のプロジェクトのバージョンを確認する場合は、ログイン後のDashboard画面にてご確認ください。  
 
 
-### 環境変数（V1, V2 API）
-環境変数を利用した実行
-
-V1 APIを利用する場合
+#### V1プロジェクトの場合
 
     export VADDY_TOKEN="123455667789"  
     export VADDY_USER="ichikaway"  
     export VADDY_HOST="www.examplevaddy.com"  
-    export VADDY_CRAWL="30"  
+    #export VADDY_CRAWL="30"  
 
-V2 APIを利用する場合
+#### V2プロジェクトの場合
 
     export VADDY_TOKEN="123455667789"
     export VADDY_USER="ichikaway"
     export VADDY_PROJECT_ID="your project id"
-    export VADDY_CRAWL="30"
+    #export VADDY_CRAWL="30"
 
 `VADDY_CRAWL`はオプション項目で、指定しない場合は最新のクロールデータを使って検査します。  
-下記の例のようにクロールラベルの指定も可能です。
+下記の例のようにクロールラベルの指定も可能です。  
+例えば、クロールラベルにuseredit1, useredit2のように付けていた場合は、検索でヒットした中の最新のクロールIDを指定して検査します。
 
     export VADDY_CRAWL="search result pages"  
 
-
-環境変数をセットした後は、下記のようにコマンドを実行します。
+### コマンド実行
+環境変数をセットした後は、下記のようにコマンドを実行します。  ご利用の環境に合わせたコマンドを実行してください。今回はLinux環境の場合のコマンド例です。
 
     vaddy-linux-64bit
 
 
+### その他の設定
 #### Slack連携
 この環境変数をセットすると脆弱性を発見した際にSlackにメッセージ通知できます。
 
@@ -72,20 +74,3 @@ V2 APIを利用する場合
     export SLACK_CHANNEL="your channel (optional)"
     export SLACK_ICON_EMOJI=":smile: (optional)"
     export SLACK_ICON_URL="icon url (optional)"
-
-### コマンド引数
-最後のオプション`crawl_id`は必須ではありません。これを指定しない場合は最新のクロールIDのデータを使って脆弱性検査します。
-
-Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_id(optional)`
-
-    ./vaddy-linux-64bit 123455667789  ichikaway  www.examplevaddy.net 30
-
-
-
-#### コマンド引数（クロールラベル指定）
-Usage: `vaddy-linux-64bit auth_key username(LoginID)  hostname crawl_label_keyword`
-
-    vaddy-linux-64bit 123455667789  ichikaway  www.examplevaddy.net useredit
-
-あなたが付けたクロールラベルの文言を指定した例です。例えば、クロールラベルにuseredit1, useredit2のように付けていた場合は、検索でヒットした中の最新のクロールIDを指定して検査します。
-検索で指定のラベルのものが見つからない場合は、`crawl_id`を指定しない検査となります（最新のcrawl idが利用されます）。
