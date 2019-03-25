@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -36,6 +37,18 @@ type ScanResult struct {
 	AlertCount    int    `json:"alert_count"`
 	ScanCount     int    `json:"scan_count"`
 	ScanResultUrl string `json:"scan_result_url"`
+}
+
+func init() {
+	var showVersion bool
+	flag.BoolVar(&showVersion, "version", false, "Show version")
+	flag.BoolVar(&showVersion, "v", false, "Show version")
+	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("Current version is %s", VERSION)
+		os.Exit(SUCCESS_EXIT)
+	}
 }
 
 func main() {
@@ -127,7 +140,7 @@ func startScan(auth_key string, user string, fqdn string, crawl string, verifica
 
 	api_server := getApiServerName()
 	api_version := detectApiVersion(project_id)
-	res, err := http.PostForm(api_server+"/" + api_version + "/scan", values)
+	res, err := http.PostForm(api_server+"/"+api_version+"/scan", values)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(ERROR_EXIT)
