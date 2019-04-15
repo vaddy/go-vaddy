@@ -36,7 +36,7 @@ VAddy for Private Net コマンド
 
 [https://github.com/vaddy/go-vaddy/releases](https://github.com/vaddy/go-vaddy/releases)
 からzipファイルをダウンロードするか、
-git cloneしてご利用ください。 
+git cloneしてご利用ください。
 
     git clone https://github.com/vaddy/go-vaddy.git
 
@@ -51,8 +51,8 @@ VAddyのWeb画面からWebAPIキーを発行してください。
 
 ### vaddy.conf
 
-| 環境変数                　|  説明                                                     | 
-| ------------------------|:--------------------------------------------------------| 
+| 環境変数                　|  説明                                                     |
+| ------------------------|:--------------------------------------------------------|
 | VADDY_AUTH_KEY       　　 | VAddyの画面で発行したWebAPIキー                             |
 | VADDY_FQDN       　　　   | VAddyで登録したサーバ名(FQDN) 例: www.example.com          |
 | VADDY_VERIFICATION_CODE  | VAddyでサーバ登録した際に発行されるVerification Code。       |
@@ -60,6 +60,7 @@ VAddyのWeb画面からWebAPIキーを発行してください。
 | VADDY_YOUR_LOCAL_IP      | 検査対象のIP。 localhostや、イントラネットのサーバのIP (例：172.16.1.10) |
 | VADDY_YOUR_LOCAL_PORT    | 検査対象のポート。 80, 443など。                            |
 | VADDY_CRAWL              | オプション項目。クロールIDやクロールラベルの文字を指定すると、そのクロールが利用される |
+| VADDY_HTTPS_PROXY        | オプション項目。VAddyのWebAPIサーバと通信する際にユーザのローカルProxyを通す際の設定。  例: 127.0.0.1:8443 のようにIP:Portをセット。 |
 
 VADDY_YOUR_LOCAL_PORTは1つのポートしか指定できません。  
 したがって、検査対象のアプリケーションはHTTPもしくはHTTPSのどちらかになります。`VADDY_YOUR_LOCAL_PORT`で指定するポート番号で、HTTPかHTTPSかを決められます。
@@ -71,15 +72,15 @@ VADDY_YOUR_LOCAL_PORTは1つのポートしか指定できません。
 エラーや脆弱性があった場合は、終了コード1を返します。
 
 
-## 使い方 
+## 使い方
 
 ### 引数
 
     Usage: ./vaddy_privatenet.sh action [-crawl crawl_id or crawl_label]   
 
 
-| action        |                                                           | 
-| ------------- |:---------------------------------------------------------:| 
+| action        |                                                           |
+| ------------- |:---------------------------------------------------------:|
 | connect       | VAddyサーバとsshトンネルを張ります                                       |
 | disconnect    | sshトンネルを切断します                                                 |
 | scan          | VAddyサーバとsshトンネルを張り、検査を実行します。検査後はトンネルを切断します。 |
@@ -105,5 +106,3 @@ scanアクションでは、検査実行前に自動的にsshトンネルを作�
 
 
 オプション`crawl`は必須ではありません。これを指定しない場合は最新のクロールIDのデータを使って脆弱性検査します。
-
-
