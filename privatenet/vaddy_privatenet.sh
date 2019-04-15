@@ -56,12 +56,21 @@ get_os_type_bit() {
 	fi
 }
 
+make_vaddyagent_options() {
+
+	VADDY_AGENT_OPTIONS="-u ${VADDY_USER} -h ${VADDY_FQDN} -w ${VADDY_YOUR_LOCAL_IP}:${VADDY_YOUR_LOCAL_PORT}"
+	if [ "${VADDY_HTTPS_PROXY}" != "" ]; then
+		VADDY_AGENT_OPTIONS=$VADDY_AGENT_OPTIONS" -p ${VADDY_HTTPS_PROXY}"
+	fi
+}
+
 show_config() {
 	echo -e '---------------- setting information -----------------'
 	echo -e "  FQDN: "$VADDY_FQDN
 	echo -e "  User: "$VADDY_USER
 	echo -e "  Local IP: "$VADDY_YOUR_LOCAL_IP
 	echo -e "  Local Port: "$VADDY_YOUR_LOCAL_PORT
+	echo -e "  Agent Options: "$VADDY_AGENT_OPTIONS
 	echo -e '------------------------------------------------------'
 	echo -e "\n\n"
 }
@@ -69,6 +78,7 @@ show_config() {
 
 load_config
 get_os_type_bit
+make_vaddyagent_options
 show_config
 #####################################################################
 
@@ -80,7 +90,6 @@ CRAWL_OPT_KEY=$2
 CRAWL_OPT_VAL=$3
 
 
-VADDY_AGENT_OPTIONS="-u ${VADDY_USER} -h ${VADDY_FQDN} -w ${VADDY_YOUR_LOCAL_IP}:${VADDY_YOUR_LOCAL_PORT}"
 
 
 usage_exit() {

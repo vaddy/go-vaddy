@@ -47,7 +47,8 @@ Next, open the project's `privatenet/conf` subdirectory and copy `vaddy.conf.exa
 | VADDY_USER              | Username for authenticating with the VAddy service. |
 | VADDY_YOUR_LOCAL_IP     | The IP address to scan. This could be localhost or the address of a server on your intranet. (e.g. 172.16.1.10) |
 | VADDY_YOUR_LOCAL_PORT   | The port to scan. (e.g. 80 or 443) |
-| VADDY_CRAWL             | Optional ID or label specifying which crawl data to use. |
+| VADDY_CRAWL             | Optional: ID or label specifying which crawl data to use. |
+| VADDY_HTTPS_PROXY       | Optional: Connect to the VAddy WebAPI server through user's proxy server.  Set "IP:Port". ex. "127.0.0.1:8443" |
 
 You can only specify a single port with `VADDY_YOUR_LOCAL_PORT`. As a result, your application will be scanned over either an HTTP or HTTPS connection depending on the port number you have specified for `VADDY_YOUR_LOCAL_PORT`.
 
@@ -58,7 +59,7 @@ If no errors or vulnerabilities are found, this tool returns the same exit code 
 ## Usage
 ### Arguments
 
-    Usage: ./vaddy_privatenet.sh action [-crawl crawl_id or crawl_label] 
+    Usage: ./vaddy_privatenet.sh action [-crawl crawl_id or crawl_label]
 
 | action     |                                                           |
 | ---------- |:---------------------------------------------------------:|
@@ -89,5 +90,3 @@ The `scan` action automatically opens an SSH tunnel before it starts scanning an
     $ ./vaddy_privatenet.sh scan -crawl 1234
 
 The `crawl` option is not required; if you omit it, VAddy will scan for vulnerabilities using the latest crawl ID data.
-
-
