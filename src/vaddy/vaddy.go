@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const VERSION string = "1.0.5"
+const VERSION string = "1.0.6"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
 const LIMIT_WAIT_COUNT int = 600 // 20sec * 600 = 3.3 hours
@@ -36,6 +36,11 @@ type ScanResult struct {
 	AlertCount    int    `json:"alert_count"`
 	ScanCount     int    `json:"scan_count"`
 	ScanResultUrl string `json:"scan_result_url"`
+	Complete      int    `json:"complete"`
+}
+
+func (s ScanResult) IsIncomplete() bool {
+	return s.AlertCount == 0 && s.Complete < 100
 }
 
 func main() {
@@ -191,7 +196,11 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 			fmt.Print("Vulnerabilities: ")
 			fmt.Println(scan_result.AlertCount)
 			fmt.Println("Warning!!!")
-			postSlackWarning(scan_result.AlertCount, fqdn, scan_id, scan_result.ScanResultUrl)
+			postSlackVulnerabilitiesWarning(scan_result.AlertCount, fqdn, scan_id, scan_result.ScanResultUrl)
+			os.Exit(ERROR_EXIT)
+		} else if scan_result.IsIncomplete() {
+			fmt.Println("Warning! Scan timed out. \nNo vulnerabilities.")
+			postSlackIncompleteWarning(fqdn, scan_id, scan_result.ScanResultUrl)
 			os.Exit(ERROR_EXIT)
 		} else if scan_result.ScanCount == 0 {
 			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
@@ -292,7 +301,25 @@ func checkNeedToGetCrawlId(str string) bool {
 	return regexp.MustCompile(regex).Match([]byte(str))
 }
 
-func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
+func postSlackVulnerabilitiesWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
+	title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
+	text := "Server: " + fqdn + "\n"
+	text += "Scan ID: " + scanID + "\n"
+	text += "Result URL: " + scanResultURL
+
+	postSlackWarning(title, text)
+}
+
+func postSlackIncompleteWarning(fqdn string, scanID string, scanResultURL string) {
+	title := "VAddy Scan was incomplete Warning!!!\n"
+	text := "Server: " + fqdn + "\n"
+	text += "Scan ID: " + scanID + "\n"
+	text += "Result URL: " + scanResultURL
+
+	postSlackWarning(title, text)
+}
+
+func postSlackWarning(title, text string) {
 	slackWebhookURL, ok1 := os.LookupEnv("SLACK_WEBHOOK_URL")
 
 	if ok1 {
@@ -312,10 +339,6 @@ func postSlackWarning(alertCount int, fqdn string, scanID string, scanResultURL 
 		if !ok5 {
 			iconURL = ""
 		}
-		title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
-		text := "Server: " + fqdn + "\n"
-		text += "Scan ID: " + scanID + "\n"
-		text += "Result URL: " + scanResultURL
 
 		type attachments struct {
 			Color string `json:"color"`
