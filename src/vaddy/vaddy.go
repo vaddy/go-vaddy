@@ -199,9 +199,10 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 			postSlackVulnerabilitiesWarning(scan_result.AlertCount, fqdn, scan_id, scan_result.ScanResultUrl)
 			os.Exit(ERROR_EXIT)
 		} else if scan_result.IsIncomplete() {
-			fmt.Println("Warning! Scan timed out. \nNo vulnerabilities.")
-			postSlackIncompleteWarning(fqdn, scan_id, scan_result.ScanResultUrl)
-			os.Exit(ERROR_EXIT)
+			fmt.Printf("Notice: Scan was NOT complete (%d%%).\n", scan_result.Complete)
+			fmt.Println("No vulnerabilities.")
+			postSlackIncompleteNotice(fqdn, scan_id, scan_result)
+			os.Exit(SUCCESS_EXIT)
 		} else if scan_result.ScanCount == 0 {
 			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
 			os.Exit(ERROR_EXIT)
@@ -307,19 +308,19 @@ func postSlackVulnerabilitiesWarning(alertCount int, fqdn string, scanID string,
 	text += "Scan ID: " + scanID + "\n"
 	text += "Result URL: " + scanResultURL
 
-	postSlackWarning(title, text)
+	postSlack(title, text)
 }
 
-func postSlackIncompleteWarning(fqdn string, scanID string, scanResultURL string) {
-	title := "VAddy Scan was incomplete Warning!!!\n"
+func postSlackIncompleteNotice(fqdn string, scanID string, scanResult ScanResult) {
+	title := fmt.Sprintf("Notice: VAddy Scan was NOT complete (%d%%).\n", scanResult.Complete)
 	text := "Server: " + fqdn + "\n"
 	text += "Scan ID: " + scanID + "\n"
-	text += "Result URL: " + scanResultURL
+	text += "Result URL: " + scanResult.ScanResultUrl
 
-	postSlackWarning(title, text)
+	postSlack(title, text)
 }
 
-func postSlackWarning(title, text string) {
+func postSlack(title, text string) {
 	slackWebhookURL, ok1 := os.LookupEnv("SLACK_WEBHOOK_URL")
 
 	if ok1 {
