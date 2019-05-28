@@ -51,7 +51,7 @@ func init() {
 	flag.Parse()
 
 	if showVersion {
-		fmt.Printf("Current version is %s", VERSION)
+		fmt.Printf("%s", VERSION)
 		os.Exit(SUCCESS_EXIT)
 	}
 }
