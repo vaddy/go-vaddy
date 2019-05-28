@@ -303,7 +303,7 @@ func checkNeedToGetCrawlId(str string) bool {
 }
 
 func postSlackVulnerabilitiesWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
-	title := "VAddy Scan Vulnerabilities: " + string(alertCount) + " Warning!!!\n"
+	title := fmt.Sprintf("VAddy Scan found Vulnerabilities: %d Warning!!!\n", alertCount)
 	text := "Server: " + fqdn + "\n"
 	text += "Scan ID: " + scanID + "\n"
 	text += "Result URL: " + scanResultURL
