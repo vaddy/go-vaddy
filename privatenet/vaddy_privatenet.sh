@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 
-echo '
-################################################################
-# VAddy Private Net Tools (Version: 1.0.3)
-# This software is released under the MIT License,
-#
-# This tool needs Mac or Linux, Java, ssh command
-#
-################################################################
-'
-
 
 ############## Config/Hook file path ######################
 CONFIG_FILE_PATH="./conf/vaddy.conf"
@@ -79,7 +69,6 @@ show_config() {
 load_config
 get_os_type_bit
 make_vaddyagent_options
-show_config
 #####################################################################
 
 
@@ -162,9 +151,32 @@ health_check() {
 	echo -e "\n=== Health Check ===\n"
 }
 
+show_version() {
+	GOVADDY_CLI=`get_govaddy_binary_name`
+	${GOVADDY_BIN_DIR}${GOVADDY_CLI} -version
+}
 
+
+show_banner() {
+echo "
+################################################################
+# VAddy Private Net Tools 
+# go-vaddy version: `show_version`
+# This software is released under the MIT License,
+#
+# This tool needs Mac or Linux, Java, ssh command
+#
+################################################################
+"
+}
+
+
+
+show_banner
+show_config
 
 case $1 in
+
 	connect)
 		connect
 		exit
@@ -181,6 +193,10 @@ case $1 in
 
 		echo -e "Exit: ${GOVADDY_EXIT}"
 		exit $GOVADDY_EXIT
+		;;
+	version)
+		show_version
+		exit
 		;;
 	*)
 		usage_exit
