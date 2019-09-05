@@ -38,7 +38,12 @@ Go-vaddyは、エラーや脆弱性が発見されなかった場合は終了コ
 検査対象のサーバをVAddyに登録した時期によってご利用のVAddyのプロジェクトのバージョン(V1/V2)が異なります。  
 ご利用のプロジェクトのバージョンを確認する場合は、ログイン後のDashboard画面にてご確認ください。  
 
+### VADDY_TOKENの取得方法
+コマンドに設定する `VADDY_TOKEN` の情報は、下記のAPI設定ページから「Create WebAPI key」ボタンを押してAPIキーを発行してください。
+発行した画面の「API Auth Key」の値が、`VADDY_TOKEN`にセットする値になります。  
+https://console.vaddy.net/user/webapi
 
+### 設定情報
 #### V1プロジェクトの場合
 
     export VADDY_TOKEN="123455667789"  
@@ -53,6 +58,7 @@ Go-vaddyは、エラーや脆弱性が発見されなかった場合は終了コ
     export VADDY_PROJECT_ID="your project id"
     #export VADDY_CRAWL="30"
 
+`VADDY_USER`はログイン時のログインIDの値をセットしてください。  
 `VADDY_CRAWL`はオプション項目で、指定しない場合は最新のクロールデータを使って検査します。  
 下記の例のようにクロールラベルの指定も可能です。  
 例えば、クロールラベルにuseredit1, useredit2のように付けていた場合は、検索でヒットした中の最新のクロールIDを指定して検査します。
