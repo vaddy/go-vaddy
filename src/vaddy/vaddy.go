@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const VERSION string = "1.0.6"
+const VERSION string = "1.0.7"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
 const LIMIT_WAIT_COUNT int = 600 // 20sec * 600 = 3.3 hours
@@ -38,6 +38,8 @@ type ScanResult struct {
 	ScanCount     int    `json:"scan_count"`
 	ScanResultUrl string `json:"scan_result_url"`
 	Complete      int    `json:"complete"`
+	CrawlId       int    `json:"crawl_id"`
+	CrawlLabel    string `json:"crawl_label"`
 }
 
 func (s ScanResult) IsIncomplete() bool {
@@ -204,6 +206,8 @@ func checkScanResult(auth_key string, user string, fqdn string, scan_id string, 
 		fmt.Println("Server: " + fqdn)
 		fmt.Println("scanId: " + scan_id)
 		fmt.Println("Result URL: " + scan_result.ScanResultUrl)
+		fmt.Println("Crawl ID: " + strconv.Itoa(scan_result.CrawlId))
+		fmt.Println("Crawl Label: " + scan_result.CrawlLabel)
 
 		if scan_result.AlertCount > 0 {
 			fmt.Print("Vulnerabilities: ")
