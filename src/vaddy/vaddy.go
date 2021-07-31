@@ -13,10 +13,10 @@ import (
 	"time"
 )
 
-const VERSION string = "1.0.7"
+const VERSION string = "1.0.8"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
-const LIMIT_WAIT_COUNT int = 600 // 20sec * 600 = 3.3 hours
+const LIMIT_WAIT_COUNT int = 1260 // 20sec * 1260 = 7 hours
 const API_SERVER string = "https://api.vaddy.net"
 
 type CrawlSearch struct {
