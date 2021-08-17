@@ -125,7 +125,9 @@ func getArgsFromEnv(verification_code string) (string, string, string, string, s
 	}
 
 	fmt.Println("Missing arguments or system env.")
-	fmt.Println("USAGE: vaddy.go ApiKey UserId FQDN CrawlID/Label(optional)")
+	fmt.Println(" ENV VADDY_USER: " + user)
+	fmt.Println(" ENV VADDY_PROJECT_ID(V2): " + project_id)
+	fmt.Println(" ENV VADDY_HOST(V1): " + fqdn)
 	os.Exit(ERROR_EXIT)
 
 	return "", "", "", "", "", ""
