@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 
+############## VERSION ######################
+PRIVATENET_TOOL_VERSION="1.0.1"
+
+
 ############## Config/Hook file path ######################
 CONFIG_FILE_PATH="./conf/vaddy.conf"
 BEFORE_SCAN_HOOK_PATH="./conf/before_scan_hook.sh"
@@ -151,17 +155,20 @@ health_check() {
 	echo -e "\n=== Health Check ===\n"
 }
 
-show_version() {
+show_govaddy_version() {
 	GOVADDY_CLI=`get_govaddy_binary_name`
 	${GOVADDY_BIN_DIR}${GOVADDY_CLI} -version
 }
 
+show_version() {
+	echo ${PRIVATENET_TOOL_VERSION}
+}
 
 show_banner() {
 echo "
 ################################################################
-# VAddy Private Net Tools 
-# go-vaddy version: `show_version`
+# VAddy Private Net Tools (`show_version`)
+# go-vaddy version: `show_govaddy_version`
 # This software is released under the MIT License,
 #
 # This tool needs Mac or Linux, Java, ssh command
@@ -195,7 +202,8 @@ case $1 in
 		exit $GOVADDY_EXIT
 		;;
 	version)
-		show_version
+		echo "PrivateNet tool:`show_version`"
+		echo "go-vaddy tool:`show_govaddy_version`"
 		exit
 		;;
 	*)
