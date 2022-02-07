@@ -13,10 +13,12 @@ import (
 	"time"
 )
 
-const VERSION string = "1.0.8"
+const VERSION string = "1.0.9"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
 const LIMIT_WAIT_COUNT int = 1260 // 20sec * 1260 = 7 hours
+const NETWORK_RETRY_COUNT int = 5
+const NETWORK_RETRY_WAIT_TIME int = 5 //5sec wait
 const API_SERVER string = "https://api.vaddy.net"
 
 type CrawlSearch struct {
@@ -174,15 +176,26 @@ func getScanResult(auth_key string, user string, fqdn string, scan_id string, ve
 
 	api_server := getApiServerName()
 	api_version := detectApiVersion(project_id)
-	res, err := http.Get(api_server + "/" + api_version + "/scan/result?" + values.Encode())
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(ERROR_EXIT)
-	}
-	defer res.Body.Close()
 
-	json_response := getResponseData(res)
-	return json_response
+	var retryCount int = 0
+	for {
+		res, err := http.Get(api_server + "/" + api_version + "/scan/result?" + values.Encode())
+		defer res.Body.Close()
+
+		if err == nil {
+			json_response := getResponseData(res)
+			return json_response
+		}
+
+		retryCount++
+		if retryCount > NETWORK_RETRY_COUNT {
+			fmt.Printf("-- getScanResult() retry max count: %d exit. --", retryCount)
+			fmt.Println(err)
+			os.Exit(ERROR_EXIT)
+		}
+		fmt.Printf("-- getScanResult() HTTP GET error: count %d --\n", retryCount)
+		time.Sleep(time.Duration(NETWORK_RETRY_WAIT_TIME) * time.Second)
+	}
 }
 
 func checkScanResult(auth_key string, user string, fqdn string, scan_id string, count int, verification_code, project_id string) {
