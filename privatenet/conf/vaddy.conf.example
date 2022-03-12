@@ -26,6 +26,9 @@ export VADDY_YOUR_LOCAL_PORT="8888"
 #Optional(CrawlId or Label)
 export VADDY_CRAWL=""
 
+#Optional(Scan Type)
+#export VADDY_SCAN_TYPE=""
+
 #Optional(HTTPS proxy server for connecting VAddy WebAPI)
 # "your.local.proxy.server:port" 
 # ex. "127.0.0.1:8443" 

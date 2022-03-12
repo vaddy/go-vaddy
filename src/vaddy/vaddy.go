@@ -63,14 +63,14 @@ func init() {
 func main() {
 	fmt.Println("==== Start VAddy Scan (Version " + VERSION + ")====")
 
-	var auth_key, user, fqdn, crawl, verification_code, project_id string = getApiParamsFromArgsOrEnv()
+	var auth_key, user, fqdn, crawl, verification_code, scan_type, project_id string = getApiParamsFromArgsOrEnv()
 
 	if checkNeedToGetCrawlId(crawl) {
 		fmt.Println("Start to get crawl ID from keyword: " + crawl)
 		crawl = getCrawlId(auth_key, user, fqdn, crawl, verification_code, project_id)
 	}
 
-	scan_id := startScan(auth_key, user, fqdn, crawl, verification_code, project_id)
+	scan_id := startScan(auth_key, user, fqdn, crawl, verification_code, scan_type, project_id)
 
 	var wait_count int = 0
 	var sleep_sec int = 20
@@ -80,7 +80,7 @@ func main() {
 
 		sleep_sec = 20
 		if wait_count < 10 {
-			sleep_sec = 3
+			sleep_sec = 5
 		}
 		time.Sleep(time.Duration(sleep_sec) * time.Second)
 
@@ -92,7 +92,11 @@ func main() {
 	}
 }
 
-func getApiParamsFromArgsOrEnv() (string, string, string, string, string, string) {
+/**
+ * v1 return: auth_key, user, fqdn, crawl, verification_code, scan_type, ""
+ * v2 return: auth_key, user, "", crawl, verification_code, scan_type, project_id
+ */
+func getApiParamsFromArgsOrEnv() (string, string, string, string, string, string, string) {
 	var auth_key, user, fqdn, crawl, verification_code string
 	verification_code, _ = os.LookupEnv("VADDY_VERIFICATION_CODE")
 
@@ -106,24 +110,25 @@ func getApiParamsFromArgsOrEnv() (string, string, string, string, string, string
 	if len(os.Args) >= 5 {
 		crawl = os.Args[4]
 	}
-	return auth_key, user, fqdn, crawl, verification_code, ""
+	return auth_key, user, fqdn, crawl, verification_code, "", ""
 }
 
-func getArgsFromEnv(verification_code string) (string, string, string, string, string, string) {
-	var auth_key, user, fqdn, crawl string
+func getArgsFromEnv(verification_code string) (string , string, string, string, string, string, string) {
+	var auth_key, user, fqdn, crawl, scan_type string
 	auth_key, ok1 := os.LookupEnv("VADDY_TOKEN")
 	user, ok2 := os.LookupEnv("VADDY_USER")
 	fqdn, ok3 := os.LookupEnv("VADDY_HOST")
 	crawl, _ = os.LookupEnv("VADDY_CRAWL")
+	scan_type, _ = os.LookupEnv("VADDY_SCAN_TYPE")
 	project_id, ok4 := os.LookupEnv("VADDY_PROJECT_ID")
 
 	// v1
 	if ok1 && ok2 && ok3 {
-		return auth_key, user, fqdn, crawl, verification_code, ""
+		return auth_key, user, fqdn, crawl, verification_code, scan_type, ""
 	}
 	// v2
 	if ok1 && ok2 && ok4 {
-		return auth_key, user, "", crawl, verification_code, project_id
+		return auth_key, user, "", crawl, verification_code, scan_type, project_id
 	}
 
 	fmt.Println("Missing arguments or system env.")
@@ -132,16 +137,17 @@ func getArgsFromEnv(verification_code string) (string, string, string, string, s
 	fmt.Println(" ENV VADDY_HOST(V1): " + fqdn)
 	os.Exit(ERROR_EXIT)
 
-	return "", "", "", "", "", ""
+	return "", "", "", "", "", "", ""
 }
 
-func startScan(auth_key string, user string, fqdn string, crawl string, verification_code, project_id string) string {
+func startScan(auth_key string, user string, fqdn string, crawl string, verification_code string, scan_type string, project_id string) string {
 	values := url.Values{}
 	values.Add("auth_key", auth_key)
 	values.Add("user", user)
 	values.Add("fqdn", fqdn)
 	values.Add("action", "start")
 	values.Add("verification_code", verification_code)
+	values.Add("scan_type", scan_type)
 	if len(crawl) > 0 {
 		values.Add("crawl_id", crawl)
 	}
