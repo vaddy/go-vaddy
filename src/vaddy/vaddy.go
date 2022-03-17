@@ -1,52 +1,22 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"time"
+	"vaddy/args"
+	"vaddy/common"
+	"vaddy/config"
+	"vaddy/crawl"
+	"vaddy/httpreq"
+	"vaddy/notification"
+	"vaddy/scan"
 )
 
-const VERSION string = "1.0.9"
 const SUCCESS_EXIT int = 0
 const ERROR_EXIT int = 1
-const LIMIT_WAIT_COUNT int = 1260 // 20sec * 1260 = 7 hours
-const NETWORK_RETRY_COUNT int = 5
-const NETWORK_RETRY_WAIT_TIME int = 5 //5sec wait
-const API_SERVER string = "https://api.vaddy.net"
-
-type CrawlSearch struct {
-	Total int               `json:"total"`
-	Items []CrawlSearchItem `json:"items"`
-}
-
-type CrawlSearchItem struct {
-	CrawlId int `json:"id"`
-}
-
-type StartScan struct {
-	ScanID string `json:"scan_id"`
-}
-
-type ScanResult struct {
-	Status        string `json:"status"`
-	AlertCount    int    `json:"alert_count"`
-	ScanCount     int    `json:"scan_count"`
-	ScanResultUrl string `json:"scan_result_url"`
-	Complete      int    `json:"complete"`
-	CrawlId       int    `json:"crawl_id"`
-	CrawlLabel    string `json:"crawl_label"`
-}
-
-func (s ScanResult) IsIncomplete() bool {
-	return s.AlertCount == 0 && s.Complete < 100
-}
 
 func init() {
 	var showVersion bool
@@ -55,295 +25,98 @@ func init() {
 	flag.Parse()
 
 	if showVersion {
-		fmt.Printf("%s", VERSION)
+		fmt.Printf("%s", config.VERSION)
 		os.Exit(SUCCESS_EXIT)
 	}
 }
 
 func main() {
-	fmt.Println("==== Start VAddy Scan (Version " + VERSION + ")====")
+	fmt.Println("==== Start VAddy Scan (Version " + config.VERSION + ")====")
 
-	var auth_key, user, fqdn, crawl, verification_code, scan_type, project_id string = getApiParamsFromArgsOrEnv()
-
-	if checkNeedToGetCrawlId(crawl) {
-		fmt.Println("Start to get crawl ID from keyword: " + crawl)
-		crawl = getCrawlId(auth_key, user, fqdn, crawl, verification_code, project_id)
-	}
-
-	scan_id := startScan(auth_key, user, fqdn, crawl, verification_code, scan_type, project_id)
-
-	var wait_count int = 0
-	var sleep_sec int = 20
-
-	for {
-		checkScanResult(auth_key, user, fqdn, scan_id, wait_count, verification_code, project_id)
-
-		sleep_sec = 20
-		if wait_count < 10 {
-			sleep_sec = 5
-		}
-		time.Sleep(time.Duration(sleep_sec) * time.Second)
-
-		wait_count++
-		if wait_count > LIMIT_WAIT_COUNT {
-			fmt.Println("Error: time out")
-			os.Exit(ERROR_EXIT)
-		}
-	}
-}
-
-/**
- * v1 return: auth_key, user, fqdn, crawl, verification_code, scan_type, ""
- * v2 return: auth_key, user, "", crawl, verification_code, scan_type, project_id
- */
-func getApiParamsFromArgsOrEnv() (string, string, string, string, string, string, string) {
-	var auth_key, user, fqdn, crawl, verification_code string
-	verification_code, _ = os.LookupEnv("VADDY_VERIFICATION_CODE")
-
-	if len(os.Args) < 4 {
-		return getArgsFromEnv(verification_code)
-	}
-
-	auth_key = os.Args[1]
-	user = os.Args[2]
-	fqdn = os.Args[3]
-	if len(os.Args) >= 5 {
-		crawl = os.Args[4]
-	}
-	return auth_key, user, fqdn, crawl, verification_code, "", ""
-}
-
-func getArgsFromEnv(verification_code string) (string , string, string, string, string, string, string) {
-	var auth_key, user, fqdn, crawl, scan_type string
-	auth_key, ok1 := os.LookupEnv("VADDY_TOKEN")
-	user, ok2 := os.LookupEnv("VADDY_USER")
-	fqdn, ok3 := os.LookupEnv("VADDY_HOST")
-	crawl, _ = os.LookupEnv("VADDY_CRAWL")
-	scan_type, _ = os.LookupEnv("VADDY_SCAN_TYPE")
-	project_id, ok4 := os.LookupEnv("VADDY_PROJECT_ID")
-
-	// v1
-	if ok1 && ok2 && ok3 {
-		return auth_key, user, fqdn, crawl, verification_code, scan_type, ""
-	}
-	// v2
-	if ok1 && ok2 && ok4 {
-		return auth_key, user, "", crawl, verification_code, scan_type, project_id
-	}
-
-	fmt.Println("Missing arguments or system env.")
-	fmt.Println(" ENV VADDY_USER: " + user)
-	fmt.Println(" ENV VADDY_PROJECT_ID(V2): " + project_id)
-	fmt.Println(" ENV VADDY_HOST(V1): " + fqdn)
-	os.Exit(ERROR_EXIT)
-
-	return "", "", "", "", "", "", ""
-}
-
-func startScan(auth_key string, user string, fqdn string, crawl string, verification_code string, scan_type string, project_id string) string {
-	values := url.Values{}
-	values.Add("auth_key", auth_key)
-	values.Add("user", user)
-	values.Add("fqdn", fqdn)
-	values.Add("action", "start")
-	values.Add("verification_code", verification_code)
-	values.Add("scan_type", scan_type)
-	if len(crawl) > 0 {
-		values.Add("crawl_id", crawl)
-	}
-	if len(project_id) > 0 {
-		values.Add("project_id", project_id)
-	}
-
-	api_server := getApiServerName()
-	api_version := detectApiVersion(project_id)
-	res, err := http.PostForm(api_server+"/"+api_version+"/scan", values)
+	scanSetting, err := args.GetArgsFromEnv()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Missing arguments or system env.")
+		fmt.Println(" ENV VADDY_USER: " + scanSetting.User)
+		fmt.Println(" ENV VADDY_PROJECT_ID(V2): " + scanSetting.ProjectId)
+		fmt.Println(" ENV VADDY_HOST(V1): " + scanSetting.ScanType)
 		os.Exit(ERROR_EXIT)
 	}
-	defer res.Body.Close()
-	json_response := getResponseData(res)
-	scanId := getScanId(json_response)
-	//fmt.Println("scanId: " + scanId)
-	return scanId
-}
 
-func getScanResult(auth_key string, user string, fqdn string, scan_id string, verification_code, project_id string) []byte {
-	values := url.Values{}
-	values.Add("auth_key", auth_key)
-	values.Add("user", user)
-	values.Add("fqdn", fqdn)
-	values.Add("scan_id", scan_id)
-	values.Add("verification_code", verification_code)
-	if len(project_id) > 0 {
-		values.Add("project_id", project_id)
-	}
-
-	api_server := getApiServerName()
-	api_version := detectApiVersion(project_id)
-
-	var retryCount int = 0
-	for {
-		res, err := http.Get(api_server + "/" + api_version + "/scan/result?" + values.Encode())
-		defer res.Body.Close()
-
-		if err == nil {
-			json_response := getResponseData(res)
-			return json_response
-		}
-
-		retryCount++
-		if retryCount > NETWORK_RETRY_COUNT {
-			fmt.Printf("-- getScanResult() retry max count: %d exit. --", retryCount)
+	if scanSetting.CheckNeedToGetCrawlId() {
+		fmt.Println("Start to get crawl ID from keyword: " + scanSetting.Crawl)
+		scanSetting.CrawlId, err = crawl.GetCrawlId(httpreq.HttpRequestData{}, scanSetting)
+		if err != nil {
 			fmt.Println(err)
 			os.Exit(ERROR_EXIT)
 		}
-		fmt.Printf("-- getScanResult() HTTP GET error: count %d --\n", retryCount)
-		time.Sleep(time.Duration(NETWORK_RETRY_WAIT_TIME) * time.Second)
 	}
-}
 
-func checkScanResult(auth_key string, user string, fqdn string, scan_id string, count int, verification_code, project_id string) {
-	json_response := getScanResult(auth_key, user, fqdn, scan_id, verification_code, project_id)
+	scanId, err := scan.StartScan(httpreq.HttpRequestData{}, scanSetting)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(ERROR_EXIT)
+	}
+	fmt.Println("Scan Started. ScanID: " + scanId)
 
-	var scan_result ScanResult
-	convertJsonToStruct(json_response, &scan_result)
+	var waitCount int = 0
+	for {
+		scanResult, err := scan.GetScanResult(httpreq.HttpRequestData{}, scanSetting, scanId)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(ERROR_EXIT)
+		}
 
-	status := scan_result.Status
-	switch status {
-	case "scanning":
-		if count > 0 && (count%60 == 0) { //wrap every 60 dots.
+		if scanResult.IsScanRunning() {
+			common.PrintDots(waitCount)
+		}
+
+		if scanResult.IsCanceled(){
+			fmt.Println("Scan canceled.")
+			fmt.Println("Result URL: " + scanResult.ScanResultUrl)
+			os.Exit(ERROR_EXIT)
+		}
+
+		if scanResult.IsFinished(){
 			fmt.Println(".")
-		} else {
-			fmt.Print(".")
-		}
-	case "canceled":
-		fmt.Println(scan_result.Status)
-		os.Exit(ERROR_EXIT)
-	case "finish":
-		//fmt.Println(string(json_response) + "\n")
-		fmt.Println(".")
-		fmt.Println("Server: " + fqdn)
-		fmt.Println("scanId: " + scan_id)
-		fmt.Println("Result URL: " + scan_result.ScanResultUrl)
-		fmt.Println("Crawl ID: " + strconv.Itoa(scan_result.CrawlId))
-		fmt.Println("Crawl Label: " + scan_result.CrawlLabel)
+			fqdnOrProjectIdLabel := scanSetting.GetHostOrProjectName()
+			fmt.Println(fqdnOrProjectIdLabel)
+			fmt.Println("scanId: " + scanId)
+			fmt.Println("Result URL: " + scanResult.ScanResultUrl)
+			fmt.Println("Crawl ID: " + strconv.Itoa(scanResult.CrawlId))
+			fmt.Println("Crawl Label: " + scanResult.CrawlLabel)
+			scanSetting.PrintScanTypeSetting()
 
-		if scan_result.AlertCount > 0 {
-			fmt.Print("Vulnerabilities: ")
-			fmt.Println(scan_result.AlertCount)
-			fmt.Println("Warning!!!")
-			postSlackVulnerabilitiesWarning(scan_result.AlertCount, fqdn, scan_id, scan_result.ScanResultUrl)
+			if scanResult.IsVulnExist() {
+				fmt.Print("Vulnerabilities: ")
+				fmt.Println(scanResult.AlertCount)
+				fmt.Println("Warning!!!")
+				notification.PostSlackVulnerabilitiesWarning(scanResult.AlertCount, fqdnOrProjectIdLabel, scanId, scanResult.ScanResultUrl)
+				os.Exit(ERROR_EXIT)
+			} else if scanResult.IsIncomplete() {
+				fmt.Printf("Notice: Scan was NOT complete (%d%%).\n", scanResult.Complete)
+				fmt.Println("No vulnerabilities.")
+				notification.PostSlackIncompleteNotice(fqdnOrProjectIdLabel, scanId, scanResult)
+				os.Exit(SUCCESS_EXIT)
+			} else {
+				fmt.Println("Scan Success. No vulnerabilities!")
+				os.Exit(SUCCESS_EXIT)
+			}
+		}
+
+		sleepSec := common.GetSleepSec(waitCount)
+		time.Sleep(time.Duration(sleepSec) * time.Second)
+
+		if isTimeOver(waitCount) {
+			fmt.Println("Error: time out")
 			os.Exit(ERROR_EXIT)
-		} else if scan_result.IsIncomplete() {
-			fmt.Printf("Notice: Scan was NOT complete (%d%%).\n", scan_result.Complete)
-			fmt.Println("No vulnerabilities.")
-			postSlackIncompleteNotice(fqdn, scan_id, scan_result)
-			os.Exit(SUCCESS_EXIT)
-		} else if scan_result.ScanCount == 0 {
-			fmt.Println("ERROR: VAddy was not able to scan your sever. Check the result on the Result URL.")
-			os.Exit(ERROR_EXIT)
-		} else {
-			fmt.Println("Scan Success. No vulnerabilities!")
-			os.Exit(SUCCESS_EXIT)
 		}
+		waitCount++
 	}
 }
 
-func getCrawlId(auth_key string, user string, fqdn string, search_label string, verification_code, project_id string) string {
-	json_response := doCrawlSearch(auth_key, user, fqdn, search_label, verification_code, project_id)
-	//fmt.Println(string(json_response))
-
-	var crawl_result CrawlSearch
-	convertJsonToStruct(json_response, &crawl_result)
-	if crawl_result.Total == 0 {
-		fmt.Println("can not find crawl id. using latest crawl id.")
-		return ""
+func isTimeOver(waitCount int) bool {
+	if waitCount > config.LIMIT_WAIT_COUNT {
+		return true
 	}
-	var crawl_id int = crawl_result.Items[0].CrawlId
-	fmt.Printf("Found %d results. Using CrawlID: %d \n\n", crawl_result.Total, crawl_id)
-	return strconv.Itoa(crawl_id)
-}
-
-func doCrawlSearch(auth_key string, user string, fqdn string, search_label string, verification_code, project_id string) []byte {
-	values := url.Values{}
-	values.Add("auth_key", auth_key)
-	values.Add("user", user)
-	values.Add("fqdn", fqdn)
-	values.Add("search_label", search_label)
-	values.Add("verification_code", verification_code)
-	if len(project_id) > 0 {
-		values.Add("project_id", project_id)
-	}
-
-	api_server := getApiServerName()
-	api_version := detectApiVersion(project_id)
-	res, err := http.Get(api_server + "/" + api_version + "/crawl?" + values.Encode())
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(ERROR_EXIT)
-	}
-	defer res.Body.Close()
-
-	json_response := getResponseData(res)
-	return json_response
-}
-
-func getResponseData(resp *http.Response) []byte {
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(string(body))
-		os.Exit(ERROR_EXIT)
-	}
-	status_code := resp.StatusCode
-	//fmt.Println(status_code)
-	if status_code != 200 {
-		fmt.Println("Network/Auth error\n" + string(body))
-		os.Exit(ERROR_EXIT)
-	}
-	return []byte(body)
-}
-
-func getScanId(jsonByteData []byte) string {
-	var scan_result StartScan
-	convertJsonToStruct(jsonByteData, &scan_result)
-	return scan_result.ScanID
-}
-
-func convertJsonToStruct(jsonByteData []byte, structData interface{}) {
-	err := json.Unmarshal(jsonByteData, structData)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(ERROR_EXIT)
-	}
-}
-
-func getApiServerName() string {
-	api_server, ok := os.LookupEnv("VADDY_API_SERVER")
-	if ok {
-		//if api server does not contain protocol name, add https://
-		var regex string = `^https://.*$`
-		if regexp.MustCompile(regex).Match([]byte(api_server)) {
-			return api_server
-		}
-		return "https://" + api_server
-	}
-	return API_SERVER
-}
-
-func checkNeedToGetCrawlId(str string) bool {
-	if len(str) == 0 || str == "" {
-		return false
-	}
-	var regex string = `[^0-9]`
-	return regexp.MustCompile(regex).Match([]byte(str))
-}
-
-func detectApiVersion(project_id string) string {
-	if len(project_id) > 0 {
-		return "v2"
-	}
-
-	return "v1"
+	return false
 }

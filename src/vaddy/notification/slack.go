@@ -1,4 +1,4 @@
-package main
+package notification
 
 import (
 	"encoding/json"
@@ -6,21 +6,22 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"vaddy/result"
+	"vaddy/config"
+	"vaddy/scan"
 )
 
-func postSlackVulnerabilitiesWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
+func PostSlackVulnerabilitiesWarning(alertCount int, fqdnOrProjectId string, scanID string, scanResultURL string) {
 	title := fmt.Sprintf("VAddy Scan found Vulnerabilities: %d Warning!!!\n", alertCount)
-	text := "Server: " + fqdn + "\n"
+	text := fqdnOrProjectId + "\n"
 	text += "Scan ID: " + scanID + "\n"
 	text += "Result URL: " + scanResultURL
 
 	postSlack(title, text)
 }
 
-func postSlackIncompleteNotice(fqdn string, scanID string, scanResult result.ScanResult) {
+func PostSlackIncompleteNotice(fqdnOrProjectId string, scanID string, scanResult scan.ScanResult) {
 	title := fmt.Sprintf("Notice: VAddy Scan was NOT complete (%d%%).\n", scanResult.Complete)
-	text := "Server: " + fqdn + "\n"
+	text := fqdnOrProjectId + "\n"
 	text += "Scan ID: " + scanID + "\n"
 	text += "Result URL: " + scanResult.ScanResultUrl
 
@@ -68,7 +69,7 @@ func postSlack(title, text string) {
 			IconEmoji: iconEmoji,
 			IconURL:   iconURL,
 			Channel:   slackChannel,
-			Text:      "VAddy Scan (Version " + VERSION + ")",
+			Text:      "VAddy Scan (Version " + config.VERSION + ")",
 			Attachements: []attachments{
 				{
 					Color: "warning",
