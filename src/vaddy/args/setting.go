@@ -8,17 +8,16 @@ import (
 )
 
 type ScanSetting struct {
-	V2 bool
-	AuthKey string
-	User string
-	Crawl string
-	ScanType string
-	ProjectId string
-	Fqdn string
+	V2               bool
+	AuthKey          string
+	User             string
+	Crawl            string
+	ScanType         string
+	ProjectId        string
+	Fqdn             string
 	VerificationCode string
-	CrawlId string
+	CrawlId          string
 }
-
 
 /**
  * v1 : auth_key, user, fqdn, crawl, verification_code, scan_type

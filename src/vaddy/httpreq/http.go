@@ -11,17 +11,16 @@ import (
 	"vaddy/config"
 )
 
-
 type HttpRequestData struct {
 }
 
 type HttpResponseData struct {
 	Status int
-	Body []byte
-	Error error
+	Body   []byte
+	Error  error
 }
 
-func (hrd HttpRequestData) HttpGet (urlpath string, scanSetting args.ScanSetting, values url.Values) (HttpResponseData, error){
+func (hrd HttpRequestData) HttpGet(urlpath string, scanSetting args.ScanSetting, values url.Values) (HttpResponseData, error) {
 	api_server := GetApiServerName()
 
 	params := values.Encode()
@@ -40,7 +39,7 @@ func (hrd HttpRequestData) HttpGet (urlpath string, scanSetting args.ScanSetting
 	return getResponseData(resp, err), err
 }
 
-func (hrd HttpRequestData) HttpPost (urlpath string, scanSetting args.ScanSetting, values url.Values) (HttpResponseData, error){
+func (hrd HttpRequestData) HttpPost(urlpath string, scanSetting args.ScanSetting, values url.Values) (HttpResponseData, error) {
 	api_server := GetApiServerName()
 
 	var endpoint string = api_server + "/" + scanSetting.GetApiVersion() + urlpath
@@ -61,14 +60,13 @@ func (hrd HttpRequestData) HttpPost (urlpath string, scanSetting args.ScanSettin
 	return getResponseData(resp, err), err
 }
 
-
 func getResponseData(resp *http.Response, httpError error) HttpResponseData {
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	return HttpResponseData{
 		Status: resp.StatusCode,
-		Body: body,
-		Error: httpError,
+		Body:   body,
+		Error:  httpError,
 	}
 }
 

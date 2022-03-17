@@ -70,13 +70,13 @@ func main() {
 			common.PrintDots(waitCount)
 		}
 
-		if scanResult.IsCanceled(){
+		if scanResult.IsCanceled() {
 			fmt.Println("Scan canceled.")
 			fmt.Println("Result URL: " + scanResult.ScanResultUrl)
 			os.Exit(ERROR_EXIT)
 		}
 
-		if scanResult.IsFinished(){
+		if scanResult.IsFinished() {
 			fmt.Println(".")
 			fqdnOrProjectIdLabel := scanSetting.GetHostOrProjectName()
 			fmt.Println(fqdnOrProjectIdLabel)

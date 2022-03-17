@@ -39,7 +39,6 @@ func GetCrawlId(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (
 	return strconv.Itoa(crawl_id), nil
 }
 
-
 func doCrawlSearch(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) ([]byte, error) {
 	values := url.Values{}
 	values.Add("user", scanSetting.User)

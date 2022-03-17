@@ -40,7 +40,7 @@ func GetSleepSec(waitCount int) int {
 	return sleepSec
 }
 
-func PrintDots(count int ) {
+func PrintDots(count int) {
 	if count > 0 && (count%60 == 0) { //wrap every 60 dots.
 		fmt.Println(".")
 	} else {
