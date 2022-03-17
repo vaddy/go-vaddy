@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"vaddy/result"
 )
 
 func postSlackVulnerabilitiesWarning(alertCount int, fqdn string, scanID string, scanResultURL string) {
@@ -17,7 +18,7 @@ func postSlackVulnerabilitiesWarning(alertCount int, fqdn string, scanID string,
 	postSlack(title, text)
 }
 
-func postSlackIncompleteNotice(fqdn string, scanID string, scanResult ScanResult) {
+func postSlackIncompleteNotice(fqdn string, scanID string, scanResult result.ScanResult) {
 	title := fmt.Sprintf("Notice: VAddy Scan was NOT complete (%d%%).\n", scanResult.Complete)
 	text := "Server: " + fqdn + "\n"
 	text += "Scan ID: " + scanID + "\n"
