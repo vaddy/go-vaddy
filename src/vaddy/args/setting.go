@@ -34,6 +34,7 @@ func GetArgsFromEnv() (ScanSetting, error) {
 	scanSetting.Fqdn, ok3 = os.LookupEnv("VADDY_HOST")
 	scanSetting.ProjectId, ok4 = os.LookupEnv("VADDY_PROJECT_ID")
 	scanSetting.Crawl, _ = os.LookupEnv("VADDY_CRAWL")
+	scanSetting.CrawlId, _ = os.LookupEnv("VADDY_CRAWL")
 	scanSetting.ScanType, _ = os.LookupEnv("VADDY_SCAN_TYPE")
 
 	// v1
