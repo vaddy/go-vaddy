@@ -31,6 +31,7 @@ func (hrd HttpRequestData) HttpGet(urlpath string, scanSetting args.ScanSetting,
 		return HttpResponseData{}, err
 	}
 	req.Header.Add("X-API-KEY", scanSetting.AuthKey)
+	req.Header.Add("User-Agent", createUserAgentString())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -52,6 +53,7 @@ func (hrd HttpRequestData) HttpPost(urlpath string, scanSetting args.ScanSetting
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("X-API-KEY", scanSetting.AuthKey)
+	req.Header.Add("User-Agent", createUserAgentString())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -81,4 +83,8 @@ func GetApiServerName() string {
 		return "https://" + api_server
 	}
 	return config.API_SERVER
+}
+
+func createUserAgentString() string {
+	return config.USER_AGENT + ": " + config.VERSION
 }
