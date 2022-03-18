@@ -1,11 +1,13 @@
 package httpreq
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 	"vaddy/args"
 	"vaddy/config"
@@ -86,5 +88,5 @@ func GetApiServerName() string {
 }
 
 func createUserAgentString() string {
-	return config.USER_AGENT + ": " + config.VERSION
+	return fmt.Sprintf("%s: %s (%s, %s)", config.USER_AGENT, config.VERSION, runtime.GOOS, runtime.GOARCH)
 }
