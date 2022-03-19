@@ -7,6 +7,9 @@ export VADDY_PROJECT_ID="your project id"
 #### crawl ID (optional)
 #export VADDY_CRAWL="30"
 
+#### Scan Type (optional)
+#export VADDY_SCAN_TYPE="XSS,SQLI"
+
 #### slack setting (optional)
 #export SLACK_WEBHOOK_URL="webhook url"
 #export SLACK_USERNAME="your user (optional)"
