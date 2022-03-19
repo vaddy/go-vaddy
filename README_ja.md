@@ -3,7 +3,7 @@ go-vaddy: VAddy API Command-Line Tool
 =================================
 
 VAddy API Command-Line Tool using golang  
-https://vaddy.net
+https://vaddy.net/ja/
 
 VAddyの脆弱性検査の実行と結果の取得を自動化するコマンドツールです。
 

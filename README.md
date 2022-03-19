@@ -7,6 +7,10 @@ https://vaddy.net
 
 Go-vaddy can start scan and check the result.
 
+日本語ドキュメントはこちらです。
+https://github.com/vaddy/go-vaddy/blob/master/README_ja.md
+
+
 ## OS type
 
 You can use exe files on `go-vaddy/bin` directory.
