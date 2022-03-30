@@ -19,8 +19,10 @@ type CrawlSearchItem struct {
 	CrawlId int `json:"id"`
 }
 
-func GetCrawlId(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (string, error) {
-	json_response, err := doCrawlSearch(httpReq, scanSetting)
+var httpRequestHandler httpreq.HttpReqInterface = httpreq.HttpRequestData{}
+
+func GetCrawlId(scanSetting args.ScanSetting) (string, error) {
+	json_response, err := doCrawlSearch(scanSetting)
 	//fmt.Println(string(json_response))
 	if err != nil {
 		return "", err
@@ -39,7 +41,7 @@ func GetCrawlId(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (
 	return strconv.Itoa(crawl_id), nil
 }
 
-func doCrawlSearch(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) ([]byte, error) {
+func doCrawlSearch(scanSetting args.ScanSetting) ([]byte, error) {
 	values := url.Values{}
 	values.Add("user", scanSetting.User)
 	values.Add("fqdn", scanSetting.Fqdn)
@@ -47,7 +49,7 @@ func doCrawlSearch(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting
 	values.Add("verification_code", scanSetting.VerificationCode)
 	values.Add("project_id", scanSetting.ProjectId)
 
-	result, err := httpReq.HttpGet("/crawl", scanSetting, values)
+	result, err := httpRequestHandler.HttpGet("/crawl", scanSetting, values)
 	if err != nil {
 		return nil, err
 	}

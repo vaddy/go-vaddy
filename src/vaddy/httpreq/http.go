@@ -13,6 +13,11 @@ import (
 	"vaddy/config"
 )
 
+type HttpReqInterface interface {
+	HttpGet(urlpath string, scanSetting args.ScanSetting, values url.Values) (HttpResponseData, error)
+	HttpPost(urlpath string, scanSetting args.ScanSetting, values url.Values) (HttpResponseData, error)
+}
+
 type HttpRequestData struct {
 }
 
