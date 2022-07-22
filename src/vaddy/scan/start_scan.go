@@ -4,14 +4,13 @@ import (
 	"net/url"
 	"vaddy/args"
 	"vaddy/common"
-	"vaddy/httpreq"
 )
 
 type ScanId struct {
 	ScanID string `json:"scan_id"`
 }
 
-func StartScan(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (string, error) {
+func StartScan(scanSetting args.ScanSetting) (string, error) {
 	values := url.Values{}
 	values.Add("action", "start")
 	values.Add("user", scanSetting.User)
@@ -21,7 +20,7 @@ func StartScan(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (s
 	values.Add("scan_type", scanSetting.ScanType)
 	values.Add("crawl_id", scanSetting.CrawlId)
 
-	result, err := httpReq.HttpPost("/scan", scanSetting, values)
+	result, err := httpRequestHandler.HttpPost("/scan", scanSetting, values)
 	if err != nil {
 		return "", err
 	}

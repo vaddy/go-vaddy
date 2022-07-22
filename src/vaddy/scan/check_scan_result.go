@@ -8,10 +8,9 @@ import (
 	"vaddy/args"
 	"vaddy/common"
 	"vaddy/config"
-	"vaddy/httpreq"
 )
 
-func GetScanResult(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting, scanId string) (ScanResult, error) {
+func GetScanResult(scanSetting args.ScanSetting, scanId string) (ScanResult, error) {
 	values := url.Values{}
 	values.Add("user", scanSetting.User)
 	values.Add("fqdn", scanSetting.Fqdn)
@@ -22,7 +21,7 @@ func GetScanResult(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting
 	var scanResult ScanResult
 	var retryCount int = 0
 	for {
-		result, err := httpReq.HttpGet("/scan/result", scanSetting, values)
+		result, err := httpRequestHandler.HttpGet("/scan/result", scanSetting, values)
 		if err != nil {
 			fmt.Print("HTTP Get Request Error: /scan/result. ")
 			fmt.Print(err)
