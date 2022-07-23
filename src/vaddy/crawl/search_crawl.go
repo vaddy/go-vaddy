@@ -2,7 +2,6 @@ package crawl
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
 	"strconv"
 	"vaddy/args"
@@ -21,24 +20,23 @@ type CrawlSearchItem struct {
 
 var httpRequestHandler httpreq.HttpReqInterface = httpreq.HttpRequestData{}
 
-func GetCrawlId(scanSetting args.ScanSetting) (string, error) {
+func GetCrawlId(scanSetting args.ScanSetting) (string, int, error) {
 	json_response, err := doCrawlSearch(scanSetting)
 	//fmt.Println(string(json_response))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	var crawl_result CrawlSearch
 	json_err := common.ConvertJsonToStruct(json_response, &crawl_result)
 	if json_err != nil {
-		return "", errors.New("Can not convert json response in crawl search.")
+		return "", 0, errors.New("Can not convert json response in crawl search.")
 	}
 	if crawl_result.Total == 0 {
-		return "", errors.New("can not find crawl id. using latest crawl id.")
+		return "", 0, errors.New("Can not find crawl id. using latest crawl id.")
 	}
 	var crawl_id int = crawl_result.Items[0].CrawlId
-	fmt.Printf("Found %d results. Using CrawlID: %d \n\n", crawl_result.Total, crawl_id)
-	return strconv.Itoa(crawl_id), nil
+	return strconv.Itoa(crawl_id), crawl_result.Total, nil
 }
 
 func doCrawlSearch(scanSetting args.ScanSetting) ([]byte, error) {

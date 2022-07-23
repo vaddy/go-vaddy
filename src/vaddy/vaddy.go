@@ -43,11 +43,13 @@ func main() {
 
 	if scanSetting.CheckNeedToGetCrawlId() {
 		fmt.Println("Start to get crawl ID from keyword: " + scanSetting.Crawl)
-		scanSetting.CrawlId, err = crawl.GetCrawlId(scanSetting)
+		var crawlTotalCount int
+		scanSetting.CrawlId, crawlTotalCount, err = crawl.GetCrawlId(scanSetting)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(ERROR_EXIT)
 		}
+		fmt.Printf("Found %d crawl results. Using CrawlID: %s \n\n", crawlTotalCount, scanSetting.CrawlId)
 	}
 
 	scanId, err := scan.StartScan(scanSetting)
