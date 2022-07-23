@@ -2,7 +2,6 @@ package crawl
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 	"vaddy/args"
 	"vaddy/httpreq"
@@ -77,8 +76,7 @@ func TestGetCrawlIdReturnError(t *testing.T) {
 
 	httpRequestHandler = httpreqmock.HttpRequestData{}
 	scanSetting := args.ScanSetting{}
-	result, _, err := GetCrawlId(scanSetting)
-	fmt.Println(result)
+	_, _, err := GetCrawlId(scanSetting)
 	if err == nil {
 		t.Error("Expect error response status.")
 	}
