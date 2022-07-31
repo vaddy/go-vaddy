@@ -42,7 +42,9 @@ func (hrd HttpRequestData) HttpGet(urlpath string, scanSetting args.ScanSetting,
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
+	if err == nil {
+		defer resp.Body.Close()
+	}
 
 	return getResponseData(resp, err), err
 }
@@ -64,12 +66,22 @@ func (hrd HttpRequestData) HttpPost(urlpath string, scanSetting args.ScanSetting
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
+	if err == nil {
+		defer resp.Body.Close()
+	}
 
 	return getResponseData(resp, err), err
 }
 
 func getResponseData(resp *http.Response, httpError error) HttpResponseData {
+	if httpError != nil {
+		return HttpResponseData{
+			Status: 500,
+			Body:   []byte(`Can not connect API server`),
+			Error:  httpError,
+		}
+	}
+
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	return HttpResponseData{
