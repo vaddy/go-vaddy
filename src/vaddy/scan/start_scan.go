@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"errors"
 	"net/url"
 	"vaddy/args"
 	"vaddy/common"
@@ -31,6 +32,9 @@ func StartScan(scanSetting args.ScanSetting) (string, error) {
 	}
 	scanId := getScanId(result.Body)
 	//fmt.Println("scanId: " + scanId)
+	if scanId == "" {
+		return "", errors.New("StartScan Error: No Scan ID found.")
+	}
 	return scanId, nil
 }
 
