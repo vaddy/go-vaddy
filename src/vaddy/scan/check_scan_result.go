@@ -36,7 +36,10 @@ func GetScanResult(scanSetting args.ScanSetting, scanId string) (ScanResult, err
 		}
 
 		if err == nil && err2 == nil {
-			common.ConvertJsonToStruct(result.Body, &scanResult)
+			err := common.ConvertJsonToStruct(result.Body, &scanResult)
+			if err != nil {
+				return ScanResult{}, err
+			}
 			return scanResult, nil
 		}
 
