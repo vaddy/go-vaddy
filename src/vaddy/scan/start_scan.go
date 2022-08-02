@@ -11,7 +11,7 @@ type ScanId struct {
 	ScanID string `json:"scan_id"`
 }
 
-func StartScan(scanSetting args.ScanSetting) (string, error) {
+func StartScan(scanSetting args.ScanSetting) (scanIdString string, errorVal error) {
 	values := url.Values{}
 	values.Add("action", "start")
 	values.Add("user", scanSetting.User)
@@ -38,7 +38,7 @@ func StartScan(scanSetting args.ScanSetting) (string, error) {
 	return scanId, nil
 }
 
-func getScanId(jsonByteData []byte) string {
+func getScanId(jsonByteData []byte) (scanIdString string) {
 	var scan_result ScanId
 	common.ConvertJsonToStruct(jsonByteData, &scan_result)
 	return scan_result.ScanID

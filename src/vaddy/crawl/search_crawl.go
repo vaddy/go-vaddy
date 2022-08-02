@@ -20,7 +20,7 @@ type CrawlSearchItem struct {
 
 var httpRequestHandler httpreq.HttpReqInterface = httpreq.HttpRequestData{}
 
-func GetCrawlId(scanSetting args.ScanSetting) (string, int, error) {
+func GetCrawlId(scanSetting args.ScanSetting) (crawlIdString string, crawlResultTotal int, errorVal error) {
 	json_response, err := doCrawlSearch(scanSetting)
 	//fmt.Println(string(json_response))
 	if err != nil {
@@ -39,7 +39,7 @@ func GetCrawlId(scanSetting args.ScanSetting) (string, int, error) {
 	return strconv.Itoa(crawl_id), crawl_result.Total, nil
 }
 
-func doCrawlSearch(scanSetting args.ScanSetting) ([]byte, error) {
+func doCrawlSearch(scanSetting args.ScanSetting) (crawlSearchResponseJson []byte, errorVal error) {
 	values := url.Values{}
 	values.Add("user", scanSetting.User)
 	values.Add("fqdn", scanSetting.Fqdn)
