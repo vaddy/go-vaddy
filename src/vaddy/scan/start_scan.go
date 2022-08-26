@@ -1,17 +1,17 @@
 package scan
 
 import (
+	"errors"
 	"net/url"
 	"vaddy/args"
 	"vaddy/common"
-	"vaddy/httpreq"
 )
 
 type ScanId struct {
 	ScanID string `json:"scan_id"`
 }
 
-func StartScan(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (string, error) {
+func StartScan(scanSetting args.ScanSetting) (scanIdString string, errorVal error) {
 	values := url.Values{}
 	values.Add("action", "start")
 	values.Add("user", scanSetting.User)
@@ -21,7 +21,7 @@ func StartScan(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (s
 	values.Add("scan_type", scanSetting.ScanType)
 	values.Add("crawl_id", scanSetting.CrawlId)
 
-	result, err := httpReq.HttpPost("/scan", scanSetting, values)
+	result, err := httpRequestHandler.HttpPost("/scan", scanSetting, values)
 	if err != nil {
 		return "", err
 	}
@@ -32,10 +32,13 @@ func StartScan(httpReq httpreq.HttpRequestData, scanSetting args.ScanSetting) (s
 	}
 	scanId := getScanId(result.Body)
 	//fmt.Println("scanId: " + scanId)
+	if scanId == "" {
+		return "", errors.New("StartScan Error: No Scan ID found.")
+	}
 	return scanId, nil
 }
 
-func getScanId(jsonByteData []byte) string {
+func getScanId(jsonByteData []byte) (scanIdString string) {
 	var scan_result ScanId
 	common.ConvertJsonToStruct(jsonByteData, &scan_result)
 	return scan_result.ScanID

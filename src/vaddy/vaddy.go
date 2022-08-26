@@ -10,7 +10,6 @@ import (
 	"vaddy/common"
 	"vaddy/config"
 	"vaddy/crawl"
-	"vaddy/httpreq"
 	"vaddy/notification"
 	"vaddy/scan"
 )
@@ -44,14 +43,16 @@ func main() {
 
 	if scanSetting.CheckNeedToGetCrawlId() {
 		fmt.Println("Start to get crawl ID from keyword: " + scanSetting.Crawl)
-		scanSetting.CrawlId, err = crawl.GetCrawlId(httpreq.HttpRequestData{}, scanSetting)
+		var crawlTotalCount int
+		scanSetting.CrawlId, crawlTotalCount, err = crawl.GetCrawlId(scanSetting)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(ERROR_EXIT)
 		}
+		fmt.Printf("Found %d crawl results. Using CrawlID: %s \n\n", crawlTotalCount, scanSetting.CrawlId)
 	}
 
-	scanId, err := scan.StartScan(httpreq.HttpRequestData{}, scanSetting)
+	scanId, err := scan.StartScan(scanSetting)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(ERROR_EXIT)
@@ -60,7 +61,7 @@ func main() {
 
 	var waitCount int = 0
 	for {
-		scanResult, err := scan.GetScanResult(httpreq.HttpRequestData{}, scanSetting, scanId)
+		scanResult, err := scan.GetScanResult(scanSetting, scanId)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(ERROR_EXIT)
