@@ -2,7 +2,7 @@
 
 
 ############## VERSION ######################
-PRIVATENET_TOOL_VERSION="1.0.1"
+PRIVATENET_TOOL_VERSION="1.0.2"
 
 
 ############## Config/Hook file path ######################
