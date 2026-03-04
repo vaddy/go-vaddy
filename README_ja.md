@@ -40,15 +40,6 @@ Go-vaddyは、エラーや脆弱性が発見されなかった場合は終了コ
 https://console.vaddy.net/user/webapi
 
 ### 設定情報
-#### V1プロジェクトの場合
-
-    export VADDY_TOKEN="123455667789"  
-    export VADDY_USER="ichikaway"  
-    export VADDY_HOST="www.examplevaddy.com"  
-    #export VADDY_CRAWL="30"  
-    #export VADDY_SCAN_TYPE="SQLI,XSS,RFI,..."
-
-#### V2プロジェクトの場合
 
     export VADDY_TOKEN="123455667789"
     export VADDY_USER="ichikaway"
