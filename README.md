@@ -37,17 +37,6 @@ Go-vaddy returns 0 (no errors, no vulnerabilities) or 1 (errors, 1 or more vulne
 
 
 ### ENV
-You can check V1/V2 project on the dashboard screen after login.
-
-#### for V1 Project
-
-    export VADDY_TOKEN="123455667789"  
-    export VADDY_USER="ichikaway"  
-    export VADDY_HOST="www.examplevaddy.com"  
-    #export VADDY_CRAWL="30"
-    #export VADDY_SCAN_TYPE="SQLI,XSS,..."
-
-#### for V2 Project
 
     export VADDY_TOKEN="123455667789"
     export VADDY_USER="ichikaway"
